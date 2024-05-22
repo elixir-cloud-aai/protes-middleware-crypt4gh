@@ -39,7 +39,7 @@ uppercase_task_body = {
     }
 
 decryption_task_body = {
-        "name": "Decrypt with secret key as environment variable",
+        "name": "Decryption with secret key as input file",
         "inputs": [
             {
                 "url": f"file://{input_dir}/hello.c4gh",
@@ -78,7 +78,7 @@ decryption_task_body = {
     }
 
 uppercase_task_with_decryption_body = {
-    "name": "Decrypt with secret key as environment variable",
+    "name": "Uppercase task with c4gh file as input",
     "inputs": [
         {
             "url": f"file://{input_dir}/hello.c4gh",
