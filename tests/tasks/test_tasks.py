@@ -54,7 +54,7 @@ def test_uppercase_task():
     with open(output_dir / "hello-upper.txt") as f:
         output = f.readline()
         assert output == "HELLO WORLD FROM THE INPUT!"
-        assert len(output) == len("HELLO WORLD FROM THE INPUT!\n")
+        assert len(output) == len("HELLO WORLD FROM THE INPUT!")
         assert output.isupper()
 
 
@@ -86,5 +86,5 @@ def test_uppercase_task_with_decryption():
     with open(output_dir / "hello-upper-decrypt.txt") as f:
         output = f.readline()
         assert output == "HELLO WORLD FROM THE INPUT!"
-        assert len(output) == len("HELLO WORLD FROM THE INPUT!\n")
+        assert len(output) == len("HELLO WORLD FROM THE INPUT!")
         assert output.isupper()
