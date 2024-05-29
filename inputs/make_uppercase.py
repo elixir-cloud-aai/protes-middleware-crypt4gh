@@ -3,7 +3,7 @@ import sys
 
 def get_uppercase_contents(file_name):
     with open(file_name, encoding='utf-8') as f:
-        content = f.readline()
+        content = f.read()
         return content.upper()
 
 
