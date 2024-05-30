@@ -19,3 +19,5 @@ jobs:
         run: pip install -r requirements_dev.txt
       - name: Lint with pylint
         run: pylint tests/tasks/*
+      - name: Lint with ruff
+        run: ruff check tests/tasks/*
