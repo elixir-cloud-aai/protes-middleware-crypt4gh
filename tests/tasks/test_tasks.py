@@ -1,6 +1,7 @@
 from time import sleep
 import json
 import requests
+import pytest
 
 from task_bodies import (
     output_dir,
@@ -12,6 +13,7 @@ from task_bodies import (
 tes_url = "http://localhost:8090/ga4gh/tes/v1"
 headers = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING")
+input_text = "hello world from the input!"
 
 
 def create_task(tasks_body):
@@ -41,50 +43,33 @@ def get_task_state(task_id):
     return task_state
 
 
-def test_uppercase_task():
-    """Test task that outputs uppercase version of input"""
+@pytest.fixture(params=[
+    uppercase_task_body,
+    decryption_task_body,
+    uppercase_task_with_decryption_body
+])
+def post_response(request):
+    return create_task(request.param)
 
-    post_response = create_task(uppercase_task_body)
-    assert post_response.status_code == 200
 
+@pytest.fixture
+def task_state(post_response):
     task_id = json.loads(post_response.text)["id"]
-    task_state = get_task_state(task_id)
+    return get_task_state(task_id)
+
+
+@pytest.mark.parametrize("filename,expected_output", [
+    ("hello-upper.txt", input_text.upper()),
+    ("hello-decrypted.txt", input_text),
+    ("hello-upper-decrypt.txt", input_text.upper())
+])
+def test_task(post_response, task_state, filename, expected_output):
+    assert post_response.status_code == 200
     assert task_state == "COMPLETE"
 
-    with open(output_dir / "hello-upper.txt") as f:
-        output = f.readline()
-        assert output == "HELLO WORLD FROM THE INPUT!"
-        assert len(output) == len("HELLO WORLD FROM THE INPUT!")
-        assert output.isupper()
-
-
-def test_decryption_task():
-    """Test task that takes outputs decrypted version of input"""
-
-    post_response = create_task(decryption_task_body)
-    assert post_response.status_code == 200
-
-    task_id = json.loads(post_response.text)["id"]
-    task_state = get_task_state(task_id)
-    assert task_state == "COMPLETE"
-
-    with open(output_dir / "hello-decrypted.txt") as f:
-        output = f.readline()
-        assert output == "hello world from the input!"
-
-
-def test_uppercase_task_with_decryption():
-    """Test task that decrypts input and outputs uppercase version of input"""
-
-    post_response = create_task(uppercase_task_with_decryption_body)
-    assert post_response.status_code == 200
-
-    task_id = json.loads(post_response.text)["id"]
-    task_state = get_task_state(task_id)
-    assert task_state == "COMPLETE"
-
-    with open(output_dir / "hello-upper-decrypt.txt") as f:
-        output = f.readline()
-        assert output == "HELLO WORLD FROM THE INPUT!"
-        assert len(output) == len("HELLO WORLD FROM THE INPUT!")
-        assert output.isupper()
+    with open(output_dir/filename) as f:
+        output = f.read()
+        assert output == expected_output
+        assert len(output) == len(expected_output)
+        if "upper" in filename:
+            assert output.isupper()
