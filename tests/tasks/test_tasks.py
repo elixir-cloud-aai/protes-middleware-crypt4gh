@@ -16,19 +16,20 @@ TES_URL = "http://localhost:8090/ga4gh/tes/v1"
 HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING")
 INPUT_TEXT = "hello world from the input!"
+TIME_LIMIT = 10
 
 
 def create_task(tasks_body):
     """Creates task with the given task body."""
     return requests.post(
-        url=f"{TES_URL}/tasks", headers=HEADERS, json=tasks_body
+        url=f"{TES_URL}/tasks", headers=HEADERS, json=tasks_body, timeout=TIME_LIMIT
     )
 
 
 def get_task(task_id):
     """Retrieves list of tasks."""
     return requests.get(
-        url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS
+        url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
     )
 
 
@@ -36,10 +37,14 @@ def get_task_state(task_id):
     """Retrieves state of task until completion."""
     def wait_for_task_completion():
         nonlocal task_state
+        elapsed_seconds = 0
         get_response = get_task(task_id)
         task_state = json.loads(get_response.text)["state"]
         while task_state in WAIT_STATUSES:
+            if elapsed_seconds == TIME_LIMIT:
+                raise requests.Timeout
             sleep(0.5)
+            elapsed_seconds += 0.5
             get_response = get_task(task_id)
             task_state = json.loads(get_response.text)["state"]
 
