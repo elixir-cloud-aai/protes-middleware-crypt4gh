@@ -80,7 +80,7 @@ def test_task(post_response, task_state, filename, expected_output):
     assert post_response.status_code == 200
     assert task_state == "COMPLETE"
 
-    with open(output_dir/filename) as f:
+    with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
         assert output == expected_output
         assert len(output) == len(expected_output)
