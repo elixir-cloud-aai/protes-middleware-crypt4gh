@@ -12,23 +12,23 @@ from task_bodies import (
     uppercase_task_with_decryption_body
 )
 
-tes_url = "http://localhost:8090/ga4gh/tes/v1"
-headers = {"accept": "application/json", "Content-Type": "application/json"}
+TES_URL = "http://localhost:8090/ga4gh/tes/v1"
+HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING")
-input_text = "hello world from the input!"
+INPUT_TEXT = "hello world from the input!"
 
 
 def create_task(tasks_body):
     """Creates task with the given task body."""
     return requests.post(
-        url=f"{tes_url}/tasks", headers=headers, json=tasks_body
+        url=f"{TES_URL}/tasks", headers=HEADERS, json=tasks_body
     )
 
 
 def get_task(task_id):
     """Retrieves list of tasks."""
     return requests.get(
-        url=f"{tes_url}/tasks/{task_id}", headers=headers
+        url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS
     )
 
 
@@ -48,27 +48,27 @@ def get_task_state(task_id):
     return task_state
 
 
-@pytest.fixture(params=[
+@pytest.fixture(name="post_response", params=[
     uppercase_task_body,
     decryption_task_body,
     uppercase_task_with_decryption_body
 ])
-def post_response(request):
+def fixture_post_response(request):
     """Returns response received after creating task."""
     return create_task(request.param)
 
 
-@pytest.fixture
-def task_state(post_response):
+@pytest.fixture(name="task_state")
+def fixture_task_state(post_response):
     """Returns state of task after completion."""
     task_id = json.loads(post_response.text)["id"]
     return get_task_state(task_id)
 
 
 @pytest.mark.parametrize("filename,expected_output", [
-    ("hello-upper.txt", input_text.upper()),
-    ("hello-decrypted.txt", input_text),
-    ("hello-upper-decrypt.txt", input_text.upper())
+    ("hello-upper.txt", INPUT_TEXT.upper()),
+    ("hello-decrypted.txt", INPUT_TEXT),
+    ("hello-upper-decrypt.txt", INPUT_TEXT.upper())
 ])
 def test_task(post_response, task_state, filename, expected_output):
     """Test tasks for successful completion and intended behavior."""
