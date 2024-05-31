@@ -48,18 +48,18 @@ def get_task_state(task_id):
     return task_state
 
 
-@pytest.fixture(params=[
+@pytest.fixture(name="post_response", params=[
     uppercase_task_body,
     decryption_task_body,
     uppercase_task_with_decryption_body
 ])
-def post_response(request):
+def fixture_post_response(request):
     """Returns response received after creating task."""
     return create_task(request.param)
 
 
-@pytest.fixture
-def task_state(post_response):
+@pytest.fixture(name="task_state")
+def fixture_task_state(post_response):
     """Returns state of task after completion."""
     task_id = json.loads(post_response.text)["id"]
     return get_task_state(task_id)
