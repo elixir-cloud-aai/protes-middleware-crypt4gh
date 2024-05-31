@@ -1,3 +1,5 @@
+"""TES task request bodies used by tests"""
+
 from pathlib import Path
 
 DIR = Path(__file__).parents[2]
