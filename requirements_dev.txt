@@ -1,2 +1,4 @@
-requests==2.32.1
-pytest==8.2.1
+requests~=2.32
+pytest~=8.2
+pylint~=3.2
+ruff~=0.4
