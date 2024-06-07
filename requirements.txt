@@ -1,1 +1,1 @@
-crypt4gh==1.7
+crypt4gh~=1.7
