@@ -79,8 +79,14 @@ def test_task(post_response, task_state, filename, expected_output):
     """Test tasks for successful completion and intended behavior."""
     assert post_response.status_code == 200
     assert task_state == "COMPLETE"
-    # Wait for file to finish downloading
-    sleep(5)
+
+    elapsed_seconds = 0
+    while not (output_dir/filename).exists():
+        if elapsed_seconds == TIME_LIMIT:
+            raise FileNotFoundError
+        sleep(1)
+        elapsed_seconds += 1
+
     with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
         assert output == expected_output
