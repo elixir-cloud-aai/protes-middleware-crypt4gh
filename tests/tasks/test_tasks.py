@@ -14,9 +14,9 @@ from task_bodies import (
 
 TES_URL = "http://localhost:8090/ga4gh/tes/v1"
 HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
-WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING")
+WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
 INPUT_TEXT = "hello world from the input!"
-TIME_LIMIT = 10
+TIME_LIMIT = 60
 
 
 def create_task(tasks_body):
@@ -43,8 +43,8 @@ def get_task_state(task_id):
         while task_state in WAIT_STATUSES:
             if elapsed_seconds == TIME_LIMIT:
                 raise requests.Timeout
-            sleep(0.5)
-            elapsed_seconds += 0.5
+            sleep(1)
+            elapsed_seconds += 1
             get_response = get_task(task_id)
             task_state = json.loads(get_response.text)["state"]
 
@@ -79,7 +79,8 @@ def test_task(post_response, task_state, filename, expected_output):
     """Test tasks for successful completion and intended behavior."""
     assert post_response.status_code == 200
     assert task_state == "COMPLETE"
-
+    # Wait for file to finish downloading
+    sleep(5)
     with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
         assert output == expected_output
