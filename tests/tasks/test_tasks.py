@@ -41,8 +41,8 @@ def get_task_state(task_id):
         get_response = get_task(task_id)
         task_state = json.loads(get_response.text)["state"]
         while task_state in WAIT_STATUSES:
-            if elapsed_seconds == TIME_LIMIT:
-                raise requests.Timeout
+            if elapsed_seconds >= TIME_LIMIT:
+                raise requests.Timeout(f"Task did not complete within {TIME_LIMIT} seconds.")
             sleep(1)
             elapsed_seconds += 1
             get_response = get_task(task_id)
@@ -53,11 +53,7 @@ def get_task_state(task_id):
     return task_state
 
 
-@pytest.fixture(name="post_response", params=[
-    uppercase_task_body,
-    decryption_task_body,
-    uppercase_task_with_decryption_body
-])
+@pytest.fixture(name="post_response")
 def fixture_post_response(request):
     """Returns response received after creating task."""
     return create_task(request.param)
@@ -70,11 +66,11 @@ def fixture_task_state(post_response):
     return get_task_state(task_id)
 
 
-@pytest.mark.parametrize("filename,expected_output", [
-    ("hello-upper.txt", INPUT_TEXT.upper()),
-    ("hello-decrypted.txt", INPUT_TEXT),
-    ("hello-upper-decrypt.txt", INPUT_TEXT.upper())
-])
+@pytest.mark.parametrize("post_response,filename,expected_output", [
+    (uppercase_task_body, "hello-upper.txt", INPUT_TEXT.upper()),
+    (decryption_task_body, "hello-decrypted.txt", INPUT_TEXT),
+    (uppercase_task_with_decryption_body, "hello-upper-decrypt.txt", INPUT_TEXT.upper())
+], indirect=['post_response'])
 def test_task(post_response, task_state, filename, expected_output):
     """Test tasks for successful completion and intended behavior."""
     assert post_response.status_code == 200
@@ -83,7 +79,7 @@ def test_task(post_response, task_state, filename, expected_output):
     elapsed_seconds = 0
     while not (output_dir/filename).exists():
         if elapsed_seconds == TIME_LIMIT:
-            raise FileNotFoundError
+            raise FileNotFoundError(f"{filename} did not download to {output_dir} within {TIME_LIMIT} seconds.")
         sleep(1)
         elapsed_seconds += 1
 
