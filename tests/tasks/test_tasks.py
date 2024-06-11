@@ -79,7 +79,8 @@ def test_task(post_response, task_state, filename, expected_output):
     elapsed_seconds = 0
     while not (output_dir/filename).exists():
         if elapsed_seconds == TIME_LIMIT:
-            raise FileNotFoundError(f"{filename} did not download to {output_dir} within {TIME_LIMIT} seconds.")
+            raise FileNotFoundError(f"{filename} did not download to {output_dir}"
+                                    f"within {TIME_LIMIT} seconds.")
         sleep(1)
         elapsed_seconds += 1
 
