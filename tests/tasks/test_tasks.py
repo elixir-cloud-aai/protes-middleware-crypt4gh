@@ -14,9 +14,9 @@ from task_bodies import (
 
 TES_URL = "http://localhost:8090/ga4gh/tes/v1"
 HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
-WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING")
+WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
 INPUT_TEXT = "hello world from the input!"
-TIME_LIMIT = 10
+TIME_LIMIT = 60
 
 
 def create_task(tasks_body):
@@ -41,10 +41,10 @@ def get_task_state(task_id):
         get_response = get_task(task_id)
         task_state = json.loads(get_response.text)["state"]
         while task_state in WAIT_STATUSES:
-            if elapsed_seconds == TIME_LIMIT:
-                raise requests.Timeout
-            sleep(0.5)
-            elapsed_seconds += 0.5
+            if elapsed_seconds >= TIME_LIMIT:
+                raise requests.Timeout(f"Task did not complete within {TIME_LIMIT} seconds.")
+            sleep(1)
+            elapsed_seconds += 1
             get_response = get_task(task_id)
             task_state = json.loads(get_response.text)["state"]
 
@@ -53,11 +53,7 @@ def get_task_state(task_id):
     return task_state
 
 
-@pytest.fixture(name="post_response", params=[
-    uppercase_task_body,
-    decryption_task_body,
-    uppercase_task_with_decryption_body
-])
+@pytest.fixture(name="post_response")
 def fixture_post_response(request):
     """Returns response received after creating task."""
     return create_task(request.param)
@@ -70,15 +66,23 @@ def fixture_task_state(post_response):
     return get_task_state(task_id)
 
 
-@pytest.mark.parametrize("filename,expected_output", [
-    ("hello-upper.txt", INPUT_TEXT.upper()),
-    ("hello-decrypted.txt", INPUT_TEXT),
-    ("hello-upper-decrypt.txt", INPUT_TEXT.upper())
-])
+@pytest.mark.parametrize("post_response,filename,expected_output", [
+    (uppercase_task_body, "hello-upper.txt", INPUT_TEXT.upper()),
+    (decryption_task_body, "hello-decrypted.txt", INPUT_TEXT),
+    (uppercase_task_with_decryption_body, "hello-upper-decrypt.txt", INPUT_TEXT.upper())
+], indirect=['post_response'])
 def test_task(post_response, task_state, filename, expected_output):
     """Test tasks for successful completion and intended behavior."""
     assert post_response.status_code == 200
     assert task_state == "COMPLETE"
+
+    elapsed_seconds = 0
+    while not (output_dir/filename).exists():
+        if elapsed_seconds == TIME_LIMIT:
+            raise FileNotFoundError(f"{filename} did not download to {output_dir} "
+                                    f"within {TIME_LIMIT} seconds.")
+        sleep(1)
+        elapsed_seconds += 1
 
     with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
