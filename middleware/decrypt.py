@@ -75,7 +75,7 @@ def move_files(file_paths: list[Path], output_path: Path) -> None:
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("file_paths", nargs='+')
+    parser.add_argument("file_paths", nargs='+', type=Path)
     parser.add_argument(
         "--output-dir",
         required=True,
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     output_dir = Path(args.output_dir)
-    paths = [Path(path) for path in args.file_paths]
+    paths = args.file_paths
     keys = get_private_keys(paths)
     decrypt_files(paths, keys, output_dir)
     move_files(paths, output_dir)
