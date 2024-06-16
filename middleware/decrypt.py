@@ -82,8 +82,9 @@ if __name__ == "__main__":
         dest="output_dir",
         help="Directory to upload files to.")
 
-    output_dir = Path(parser.parse_args().output_dir)
-    paths = [Path(path) for path in parser.parse_args().file_paths]
+    args = parser.parse_args()
+    output_dir = Path(args.output_dir)
+    paths = [Path(path) for path in args.file_paths]
     keys = get_private_keys(paths)
     decrypt_files(paths, keys, output_dir)
     move_files(paths, output_dir)
