@@ -11,8 +11,8 @@ Example:
 import os
 from argparse import ArgumentParser
 from pathlib import Path
-from crypt4gh.lib import decrypt
-from crypt4gh.keys import get_private_key
+from crypt4gh.lib import decrypt  # type: ignore
+from crypt4gh.keys import get_private_key  # type: ignore
 
 
 def get_private_keys(file_paths: list[Path]) -> list[bytes]:
