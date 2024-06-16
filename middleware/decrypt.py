@@ -6,7 +6,7 @@ without alteration. If a Crypt4GH file is included, the private key associated w
 file must be provided.
 
 Example:
-    python3 decrypt.py --ouput-dir /outputs/ file.txt file.c4gh sk.sec pk.pub
+    python3 decrypt.py --output-dir /outputs/ file.txt file.c4gh sk.sec pk.pub
 """
 import os
 from argparse import ArgumentParser
@@ -46,7 +46,7 @@ def decrypt_files(
         output_path: (Path): Directory to place decrypted files in.
 
     Raises:
-        ValueError: If no private key for a Crypt4GH file is provided
+        ValueError: If no private key for a Crypt4GH file is provided.
     """
     for file_path in file_paths:
         with open(file_path, "rb") as f_in:
