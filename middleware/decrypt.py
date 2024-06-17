@@ -8,7 +8,7 @@ file must be provided.
 Example:
     python3 decrypt.py --output-dir /outputs/ file.txt file.c4gh sk.sec pk.pub
 """
-import os
+import shutil
 from argparse import ArgumentParser
 from pathlib import Path
 from crypt4gh.lib import decrypt  # type: ignore
@@ -36,41 +36,26 @@ def get_private_keys(file_paths: list[Path]) -> list[bytes]:
 
 def decrypt_files(
         file_paths: list[Path],
-        private_keys: list[bytes],
-        output_path: Path) -> None:
+        private_keys: list[bytes]):
     """Decrypt files and save to specified output directory.
 
     Args:
         file_paths (list[Path]): A list of file paths.
         private_keys (list[bytes]): A list of private keys as byte objects.
-        output_path: (Path): Directory to place decrypted files in.
 
     Raises:
         ValueError: If no private key for a Crypt4GH file is provided.
     """
     for file_path in file_paths:
         with open(file_path, "rb") as f_in:
-            filename = file_path.name
             try:
-                with open(output_path/filename, "wb") as f_out:
+                with open('temp_file', "wb") as f_out:
                     decrypt([(0, pk, "") for pk in private_keys], f_in, f_out)
+                shutil.move('temp_file', file_path)
             except ValueError as e:
                 if str(e) == "Not a CRYPT4GH formatted file":
                     continue
                 raise ValueError(f"Private key for {file_path} not provided") from e
-
-
-def move_files(file_paths: list[Path], output_path: Path) -> None:
-    """Move files that are not in the specified output directory to the directory.
-
-    Args:
-        file_paths (list[Path]): A list of file paths.
-        output_path: (Path): Directory to place decrypted files in.
-    """
-    for file_path in file_paths:
-        filename = file_path.name
-        if not (output_path/filename).exists():
-            os.replace(file_path, output_path/filename)
 
 
 if __name__ == "__main__":
@@ -80,11 +65,12 @@ if __name__ == "__main__":
         "--output-dir",
         required=True,
         dest="output_dir",
-        help="Directory to upload files to.")
+        help="Directory to upload files to.",
+        type=Path)
 
     args = parser.parse_args()
-    output_dir = Path(args.output_dir)
-    paths = args.file_paths
+    paths = [args.output_dir/file_path.name for file_path in args.file_paths]
+    for src, dest in zip(args.file_paths, paths):
+        shutil.move(src, dest)
     keys = get_private_keys(paths)
-    decrypt_files(paths, keys, output_dir)
-    move_files(paths, output_dir)
+    decrypt_files(paths, keys)
