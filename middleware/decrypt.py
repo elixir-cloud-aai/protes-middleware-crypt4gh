@@ -20,10 +20,10 @@ def get_private_keys(file_paths: list[Path]) -> list[bytes]:
     """Retrieve private keys from a list of files.
 
     Args:
-        file_paths (list[Path]): A list of file paths.
+        file_paths: A list of file paths.
 
     Returns:
-        list[bytes]: A list of retrieved private keys as byte objects.
+        A list of retrieved private keys as byte objects.
     """
     private_keys = []
     for file_path in file_paths:
@@ -41,8 +41,8 @@ def decrypt_files(
     """Decrypt files and save to specified output directory.
 
     Args:
-        file_paths (list[Path]): A list of file paths.
-        private_keys (list[bytes]): A list of private keys as byte objects.
+        file_paths: A list of file paths.
+        private_keys: A list of private keys as byte objects.
 
     Raises:
         ValueError: If no private key for a Crypt4GH file is provided.
