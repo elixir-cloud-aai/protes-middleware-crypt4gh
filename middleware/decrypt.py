@@ -10,6 +10,7 @@ Example:
 from argparse import ArgumentParser
 from pathlib import Path
 import shutil
+import subprocess
 from tempfile import NamedTemporaryFile
 
 from crypt4gh.lib import decrypt  # type: ignore
@@ -66,17 +67,29 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
 def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
     """Decrypt files in place.
 
-        Args:
-            file_paths: A list of file paths.
-            output_dir: Directory to move files to.
+    Args:
+        file_paths: A list of file paths.
+        output_dir: Directory to move files to.
 
-        Returns:
-            A list of the new file paths.
-        """
+    Returns:
+        A list containing the new file paths.
+    """
     output_paths = [output_dir/file_path.name for file_path in file_paths]
     for src, dest in zip(file_paths, output_paths):
         shutil.move(src, dest)
     return output_paths
+
+
+def remove_files(directory: Path):
+    """Securely removes all files in a directory using srm.
+
+    Args:
+        directory: Directory that holds the files to be deleted.
+    """
+    if not directory.is_dir():
+        raise ValueError(f"Could not remove files: {directory} is not a directory.")
+    for file in directory.iterdir():
+        subprocess.run(["srm", str(file)], check=True)
 
 
 def main():
@@ -95,8 +108,12 @@ def main():
 
     args = parser.parse_args()
     new_paths = move_files(file_paths=args.file_paths, output_dir=args.output_dir)
-    keys = get_private_keys(new_paths)
-    decrypt_files(file_paths=new_paths, private_keys=keys)
+    keys = get_private_keys(file_paths=new_paths)
+    try:
+        decrypt_files(file_paths=new_paths, private_keys=keys)
+    except Exception as e:
+        remove_files(args.output_dir)
+        raise e
 
 
 if __name__ == "__main__":
