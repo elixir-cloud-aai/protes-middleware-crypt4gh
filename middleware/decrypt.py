@@ -28,7 +28,7 @@ def get_private_keys(file_paths: list[Path]) -> list[bytes]:
     private_keys = []
     for file_path in file_paths:
         try:
-            key = get_private_key(Path(file_path), lambda x: '')
+            key = get_private_key(file_path, callback=lambda x: '')  # Callback returns sk password
             private_keys.append(key)
         except ValueError:
             continue
