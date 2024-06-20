@@ -81,7 +81,7 @@ def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
 
 
 def remove_files(directory: Path):
-    """Securely removes all files in a directory using srm.
+    """Rewrites and removes all files in a directory using rm -P.
 
     Args:
         directory: Directory that holds the files to be deleted.
@@ -89,7 +89,7 @@ def remove_files(directory: Path):
     if not directory.is_dir():
         raise ValueError(f"Could not remove files: {directory} is not a directory.")
     for file in directory.iterdir():
-        subprocess.run(["srm", str(file)], check=True)
+        subprocess.run(["rm", "-P", str(file)], check=True)
 
 
 def main():
