@@ -99,7 +99,7 @@ def main():
         "file_paths",
         nargs='+',
         type=Path,
-        help="Paths to input files.")
+        help="Paths to the input files.")
     parser.add_argument(
         "--output-dir",
         required=True,
