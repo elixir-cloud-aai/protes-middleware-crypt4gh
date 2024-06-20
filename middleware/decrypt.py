@@ -11,6 +11,7 @@ Example:
 from argparse import ArgumentParser
 from pathlib import Path
 import shutil
+from tempfile import NamedTemporaryFile
 
 from crypt4gh.lib import decrypt  # type: ignore
 from crypt4gh.keys import get_private_key  # type: ignore
@@ -28,7 +29,8 @@ def get_private_keys(file_paths: list[Path]) -> list[bytes]:
     private_keys = []
     for file_path in file_paths:
         try:
-            key = get_private_key(file_path, callback=lambda x: '')  # Callback returns sk password
+            # Callback returns password of sk
+            key = get_private_key(file_path, callback=lambda x: '')
             private_keys.append(key)
         except ValueError:
             continue
@@ -38,7 +40,7 @@ def get_private_keys(file_paths: list[Path]) -> list[bytes]:
 def decrypt_files(
         file_paths: list[Path],
         private_keys: list[bytes]):
-    """Decrypt files and save to specified output directory.
+    """Decrypt files in place.
 
     Args:
         file_paths: A list of file paths.
@@ -47,12 +49,17 @@ def decrypt_files(
     Raises:
         ValueError: If no private key for a Crypt4GH file is provided.
     """
+    encryption_method_codes = {
+        'ChaCha20': 0,
+        'AES-GCM': 1  # Not currently supported by Crypt4GH standard
+    }
+    # Third element of tuple is the recipient pk, which isn't used in decryption
+    key_tuples = [(encryption_method_codes['ChaCha20'], sk, None) for sk in private_keys]
     for file_path in file_paths:
-        with open(file_path, "rb") as f_in:
+        with open(file_path, "rb") as f_in, NamedTemporaryFile() as f_out:
             try:
-                with open('temp_file', "wb") as f_out:
-                    decrypt([(0, pk, "") for pk in private_keys], f_in, f_out)
-                shutil.move('temp_file', file_path)
+                decrypt(keys=key_tuples, infile=f_in, outfile=f_out)
+                shutil.move(f_out.name, file_path)
             except ValueError as e:
                 if str(e) == "Not a CRYPT4GH formatted file":
                     continue
