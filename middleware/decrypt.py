@@ -8,9 +8,10 @@ file must be provided.
 Example:
     python3 decrypt.py --output-dir /outputs/ file.txt file.c4gh sk.sec pk.pub
 """
-import shutil
 from argparse import ArgumentParser
 from pathlib import Path
+import shutil
+
 from crypt4gh.lib import decrypt  # type: ignore
 from crypt4gh.keys import get_private_key  # type: ignore
 
