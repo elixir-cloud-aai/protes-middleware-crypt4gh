@@ -59,9 +59,9 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
                 decrypt(keys=key_tuples, infile=f_in, outfile=f_out)
                 shutil.move(f_out.name, file_path)
             except ValueError as e:
-                if str(e) == "Not a CRYPT4GH formatted file":
-                    continue
-                raise ValueError(f"Private key for {file_path} not provided") from e
+                if str(e) != "Not a CRYPT4GH formatted file":
+                    print(f"Private key for {file_path} not provided")
+                continue
 
 
 def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
@@ -112,7 +112,7 @@ def main():
     try:
         decrypt_files(file_paths=new_paths, private_keys=keys)
     except Exception as e:
-        remove_files(args.output_dir)
+        remove_files(directory=args.output_dir)
         raise e
 
 
