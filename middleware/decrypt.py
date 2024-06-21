@@ -57,7 +57,7 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
     for file_path in file_paths:
         with open(file_path, "rb") as f_in, NamedTemporaryFile() as f_out:
             try:
-                decrypt(keys=key_tuples, infile=f_in, outfile=f_out)
+                decrypt(keys=key_tuples, infile=f_in, outfile=f_out)  # Checks for magic
                 shutil.move(f_out.name, file_path)
             except ValueError as e:
                 if str(e) != "Not a CRYPT4GH formatted file":
