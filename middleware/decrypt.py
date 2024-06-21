@@ -66,7 +66,7 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
 
 
 def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
-    """Decrypt files in place.
+    """Move files to a specified output directory.
 
     Args:
         file_paths: A list of file paths with unique file names.
