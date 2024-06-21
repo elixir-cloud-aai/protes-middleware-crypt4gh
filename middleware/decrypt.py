@@ -99,8 +99,12 @@ def remove_files(directory: Path):
         subprocess.run(["rm", "-P", str(file)], check=True)
 
 
-def main():
-    """Parse command-line arguments"""
+def get_args():
+    """Parse command-line arguments.
+
+    Returns:
+        argparse.ArgumentParser object containing the file_paths and output_dir arguments
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "file_paths",
@@ -113,7 +117,12 @@ def main():
         help="Directory to upload files to. Defaults to $TMPDIR if set, otherwise './tmpdir'.",
         type=Path)
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    """Coordinate execution of script."""
+    args = get_args()
     new_paths = move_files(file_paths=args.file_paths, output_dir=args.output_dir)
     keys = get_private_keys(file_paths=new_paths)
     try:
