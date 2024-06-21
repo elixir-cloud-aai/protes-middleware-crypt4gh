@@ -69,13 +69,19 @@ def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
     """Decrypt files in place.
 
     Args:
-        file_paths: A list of file paths.
+        file_paths: A list of file paths with unique file names.
         output_dir: Directory to move files to.
 
     Returns:
         A list containing the new file paths.
     """
-    output_paths = [output_dir/file_path.name for file_path in file_paths]
+    output_paths = []
+    existing_names = set()
+    for file_path in file_paths:
+        if file_path.name in existing_names:
+            raise ValueError(f"Duplicate file name found: {file_path.name}")
+        output_paths = [output_dir/file_path.name for file_path in file_paths]
+        existing_names.add(file_path.name)
     for src, dest in zip(file_paths, output_paths):
         shutil.move(src, dest)
     return output_paths
@@ -100,7 +106,7 @@ def main():
         "file_paths",
         nargs='+',
         type=Path,
-        help="Paths to the input files.")
+        help="Paths to the input files. File names must be unique.")
     parser.add_argument(
         "--output-dir",
         default=os.environ.get("TMPDIR", "./tmpdir"),
