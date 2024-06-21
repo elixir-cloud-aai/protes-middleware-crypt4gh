@@ -89,6 +89,9 @@ def remove_files(directory: Path):
 
     Args:
         directory: Directory that holds the files to be deleted.
+
+    Raises:
+        ValueError if specified directory does not exist.
     """
     if not directory.is_dir():
         raise ValueError(f"Could not remove files: {directory} is not a directory.")
