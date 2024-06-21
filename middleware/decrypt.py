@@ -44,9 +44,6 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
     Args:
         file_paths: A list of file paths.
         private_keys: A list of private keys as byte objects.
-
-    Raises:
-        ValueError: If no private key for a Crypt4GH file is provided.
     """
     encryption_method_codes = {
         'ChaCha20': 0,
