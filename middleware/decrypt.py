@@ -8,6 +8,7 @@ Example:
     python3 decrypt.py --output-dir /outputs/ file.txt file.c4gh sk.sec pk.pub
 """
 from argparse import ArgumentParser
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -102,8 +103,8 @@ def main():
         help="Paths to the input files.")
     parser.add_argument(
         "--output-dir",
-        required=True,
-        help="Directory to upload files to.",
+        default=os.environ.get("TMPDIR", "./tmpdir"),
+        help="Directory to upload files to. Defaults to $TMPDIR if set, otherwise './tmpdir'.",
         type=Path)
 
     args = parser.parse_args()
