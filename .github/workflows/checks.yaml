@@ -18,6 +18,6 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements_dev.txt
       - name: Lint with pylint
-        run: pylint tests/tasks/*
+        run: pylint tests/tasks/* middleware/*
       - name: Lint with ruff
-        run: ruff check tests/tasks/*
+        run: ruff check tests/tasks/* middleware/*
