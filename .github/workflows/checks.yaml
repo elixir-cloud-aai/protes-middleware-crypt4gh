@@ -21,3 +21,5 @@ jobs:
         run: pylint tests/tasks/* middleware/*
       - name: Lint with ruff
         run: ruff check tests/tasks/* middleware/*
+      - name: Type checking with mypy
+        run: mypy middleware
