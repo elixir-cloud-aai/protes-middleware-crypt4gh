@@ -1,0 +1,10 @@
+[project]
+name = "crypt4gh_middleware"
+description = "Middleware that enables the use of Crypt4GH"
+version = "0.0.1"
+dependencies = [
+  "crypt4gh ~= 1.7",
+]
+
+[tool.setuptools.packages.find]
+where = ["./middleware"]
