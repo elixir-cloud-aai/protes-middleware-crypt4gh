@@ -15,6 +15,11 @@ class TestGetPrivateKeys:
         """Test empty input."""
         assert not get_private_keys([])
 
+    def test_invalid_path(self):
+        """Test input with an invalid filename."""
+        with pytest.raises(FileNotFoundError):
+            get_private_keys([INPUT_DIR/'bad_file_path'])
+
     @pytest.mark.parametrize("files,expected_keys_retrieved", [
         (["alice.pub", "bob.pub", "hello.c4gh"], []),
         (["alice.sec", "alice.pub", "bob.pub"], ["alice.sec"]),
