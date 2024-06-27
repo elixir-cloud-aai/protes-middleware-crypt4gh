@@ -61,7 +61,7 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
             try:
                 decrypt(keys=key_tuples, infile=f_in, outfile=f_out)  # Checks for magic
                 shutil.move(f_out.name, file_path)
-                logger.debug("Decrypted %s successfully", file_path)
+                logger.info("Decrypted %s successfully", file_path)
             except ValueError as e:
                 if str(e) != "Not a CRYPT4GH formatted file":
                     print(f"Private key for {file_path} not provided")
