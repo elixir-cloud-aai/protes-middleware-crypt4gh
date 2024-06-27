@@ -36,9 +36,9 @@ def get_private_keys(file_paths: list[Path]) -> list[bytes]:
             # Callback returns password of sk
             key = get_private_key(filepath=file_path, callback=lambda x: '')
             private_keys.append(key)
-            logging.debug("%s identified as a private key", file_path)
+            logger.debug("%s identified as a private key", file_path)
         except ValueError:
-            logging.debug("%s not identified as a private key", file_path)
+            logger.debug("%s not identified as a private key", file_path)
             continue
     return private_keys
 
@@ -87,7 +87,7 @@ def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
         existing_names.add(file_path.name)
     for src, dest in zip(file_paths, output_paths):
         shutil.move(src, dest)
-        logging.debug("Moved %s to %s", src, dest)
+        logger.debug("Moved %s to %s", src, dest)
     return output_paths
 
 
@@ -104,7 +104,7 @@ def remove_files(directory: Path):
         raise ValueError(f"Could not remove files: {directory} is not a directory.")
     for file in directory.iterdir():
         subprocess.run(["rm", "-P", str(file)], check=True)
-        logging.debug("Removed %s", file.name)
+        logger.debug("Removed %s", file.name)
 
 
 def get_args():
@@ -131,8 +131,8 @@ def get_args():
 def main():
     """Coordinate execution of script."""
     args = get_args()
-    logging.debug("file_paths: %s", ", ".join([f.name for f in args.file_paths]))
-    logging.debug("output_dir: %s", args.output_dir)
+    logger.debug("file_paths: %s", ", ".join([f.name for f in args.file_paths]))
+    logger.debug("output_dir: %s", args.output_dir)
     new_paths = move_files(file_paths=args.file_paths, output_dir=args.output_dir)
     keys = get_private_keys(file_paths=new_paths)
     try:
