@@ -20,6 +20,8 @@ from crypt4gh.keys import get_private_key  # type: ignore
 
 logger = logging.getLogger(__name__)
 
+# pylint: disable=logging-fstring-interpolation
+
 
 def get_private_keys(file_paths: list[Path]) -> list[bytes]:
     """Retrieve private keys from a list of files.
@@ -36,9 +38,9 @@ def get_private_keys(file_paths: list[Path]) -> list[bytes]:
             # Callback returns password of sk
             key = get_private_key(filepath=file_path, callback=lambda x: '')
             private_keys.append(key)
-            logger.debug("%s identified as a private key", file_path)
+            logger.debug(f"{file_path} identified as a private key", )
         except ValueError:
-            logger.debug("%s not identified as a private key", file_path)
+            logger.debug(f"{file_path} not identified as a private key")
             continue
     return private_keys
 
@@ -61,7 +63,7 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
             try:
                 decrypt(keys=key_tuples, infile=f_in, outfile=f_out)  # Checks for magic
                 shutil.move(f_out.name, file_path)
-                logger.info("Decrypted %s successfully", file_path)
+                logger.info(f"Decrypted {file_path} successfully")
             except ValueError as e:
                 if str(e) != "Not a CRYPT4GH formatted file":
                     print(f"Private key for {file_path} not provided")
@@ -87,7 +89,7 @@ def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
         existing_names.add(file_path.name)
     for src, dest in zip(file_paths, output_paths):
         shutil.move(src, dest)
-        logger.debug("Moved %s to %s", src, dest)
+        logger.debug(f"Moved {src} to {dest}")
     return output_paths
 
 
@@ -104,7 +106,7 @@ def remove_files(directory: Path):
         raise ValueError(f"Could not remove files: {directory} is not a directory.")
     for file in directory.iterdir():
         subprocess.run(["rm", "-P", str(file)], check=True)
-        logger.debug("Removed %s", file.name)
+        logger.debug(f"Removed {file.name}")
 
 
 def get_args():
@@ -131,8 +133,8 @@ def get_args():
 def main():
     """Coordinate execution of script."""
     args = get_args()
-    logger.debug("file paths: %s", ", ".join([f.name for f in args.file_paths]))
-    logger.debug("output directory: %s", args.output_dir)
+    logger.debug(f"file paths: {", ".join([f.name for f in args.file_paths])}")
+    logger.debug(f"output directory: {args.output_dir}")
     new_paths = move_files(file_paths=args.file_paths, output_dir=args.output_dir)
     keys = get_private_keys(file_paths=new_paths)
     try:
