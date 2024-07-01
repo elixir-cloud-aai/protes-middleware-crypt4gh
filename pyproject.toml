@@ -1,10 +1,21 @@
-[project]
-name = "crypt4gh_middleware"
-description = "Middleware that enables the use of Crypt4GH"
-version = "0.0.1"
-dependencies = [
-  "crypt4gh ~= 1.7",
-]
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
 
-[tool.setuptools.packages.find]
-where = ["./middleware"]
+[tool.poetry]
+name = "middleware"
+authors = ["Athitheya Gobinathan <athith.g@gmail.com>"]
+description = "Middleware that enables the use of Crypt4GH."
+version = "0.0.1"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.test.dependencies]
+crypt4gh= "~1.7"
+pytest = "^8.2.2"
+requests = "^2.32.3"
+
+[tool.poetry.group.lint.dependencies]
+ruff = "*"
+pylint = "^3.2.5"
