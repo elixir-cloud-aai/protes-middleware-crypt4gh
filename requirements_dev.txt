@@ -1,4 +1,5 @@
-requests
+mypy
 pytest
 pylint
+requests
 ruff
