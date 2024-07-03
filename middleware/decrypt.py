@@ -133,8 +133,8 @@ def get_args():
 def main():
     """Coordinate execution of script."""
     args = get_args()
-    logger.debug(f"file paths: {", ".join([f.name for f in args.file_paths])}")
-    logger.debug(f"output directory: {args.output_dir}")
+    logger.debug(f"File paths: {", ".join([f.name for f in args.file_paths])}")
+    logger.debug(f"Output directory: {args.output_dir}")
     new_paths = move_files(file_paths=args.file_paths, output_dir=args.output_dir)
     keys = get_private_keys(file_paths=new_paths)
     try:
