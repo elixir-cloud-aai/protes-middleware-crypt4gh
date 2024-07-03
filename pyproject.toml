@@ -11,11 +11,12 @@ version = "0.0.1"
 [tool.poetry.dependencies]
 python = "^3.8"
 
-[tool.poetry.group.test.dependencies]
-crypt4gh= "~1.7"
-pytest = "^8.2.2"
-requests = "^2.32.3"
+[tool.poetry.group.tests.dependencies]
+crypt4gh = "~1.7"
+pytest = "*"
+requests = "*"
+
 
 [tool.poetry.group.lint.dependencies]
 ruff = "*"
-pylint = "^3.2.5"
+pylint = "*"
