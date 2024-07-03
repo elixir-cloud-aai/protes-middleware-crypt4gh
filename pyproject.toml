@@ -3,7 +3,7 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
 [tool.poetry]
-name = "middleware"
+name = "crypt4gh-middleware"
 authors = ["Athitheya Gobinathan <athith.g@gmail.com>"]
 description = "Middleware that enables the use of Crypt4GH."
 version = "0.0.1"
@@ -15,7 +15,6 @@ python = "^3.8"
 crypt4gh = "~1.7"
 pytest = "*"
 requests = "*"
-
 
 [tool.poetry.group.lint.dependencies]
 ruff = "*"
