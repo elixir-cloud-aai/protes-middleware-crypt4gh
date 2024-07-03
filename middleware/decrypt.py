@@ -20,8 +20,6 @@ from crypt4gh.keys import get_private_key  # type: ignore
 
 logger = logging.getLogger(__name__)
 
-# pylint: disable=logging-fstring-interpolation
-
 
 def get_private_keys(file_paths: list[Path]) -> list[bytes]:
     """Retrieve private keys from a list of files.
