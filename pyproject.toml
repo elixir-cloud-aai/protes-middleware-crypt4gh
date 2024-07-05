@@ -19,6 +19,7 @@ requests = "*"
 [tool.poetry.group.lint.dependencies]
 ruff = "*"
 pylint = "*"
+mypy = "*"
 
 [tool.pylint."MESSAGES CONTROL"]
 disable = ["logging-fstring-interpolation"]
