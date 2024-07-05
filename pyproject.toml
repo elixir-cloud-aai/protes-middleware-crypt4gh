@@ -1,0 +1,24 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.poetry]
+name = "crypt4gh-middleware"
+authors = ["Athitheya Gobinathan <athith.g@gmail.com>"]
+description = "Middleware that enables the use of Crypt4GH."
+version = "0.0.1"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.tests.dependencies]
+crypt4gh = "~1.7"
+pytest = "*"
+requests = "*"
+
+[tool.poetry.group.lint.dependencies]
+ruff = "*"
+pylint = "*"
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = ["logging-fstring-interpolation"]
