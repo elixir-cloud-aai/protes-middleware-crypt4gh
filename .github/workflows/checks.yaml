@@ -15,11 +15,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install requirements
-        run: pip install -r requirements_dev.txt
+      - name: Install poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: poetry install
       - name: Lint with pylint
-        run: pylint tests/tasks/* middleware/*
+        run: poetry run pylint tests/tasks/* crypt4gh_middleware/*
       - name: Lint with ruff
-        run: ruff check tests/tasks/* middleware/*
+        run: poetry run ruff check tests/tasks/* crypt4gh_middleware/*
       - name: Type checking with mypy
-        run: mypy middleware
+        run: poetry run mypy crypt4gh_middleware
