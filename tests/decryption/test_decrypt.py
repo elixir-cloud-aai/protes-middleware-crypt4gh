@@ -63,7 +63,7 @@ class TestDecryptFiles:
         """Returns the encrypted file paths and re-encrypts files after use."""
         encrypted_files = [INPUT_DIR/"hello.c4gh", INPUT_DIR/"hello2.c4gh"]
         yield encrypted_files
-        # Re-encrypt files after decryption
+        # Re-encrypt files after decryption to ensure files are encrypted for each test
         sk, pk = key_pair_bytes
         for file_path in encrypted_files:
             with open(file_path, "rb") as f_in, NamedTemporaryFile() as f_out:
