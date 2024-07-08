@@ -75,13 +75,16 @@ class TestDecryptFiles:
         """Returns the unencrypted file paths"""
         return [INPUT_DIR/"hello.txt"]
 
-    @pytest.mark.parametrize("files", ["encrypted_files", "unencrypted_files"])
+    @pytest.mark.parametrize("files", ["encrypted_files", "unencrypted_files", []])
     def test_decrypt_encrypted_files(self, files, key_pair_bytes, request):
         """Test that decrypt_files decrypts only encrypted files in-place.
 
         Ensure no exception is thrown when attempting to decrypt unencrypted files.
         """
-        files = request.getfixturevalue(files)
+        # Handles fixture arguments
+        if isinstance(files, str):
+            files = request.getfixturevalue(files)
+
         decrypt_files(file_paths=files,
                       private_keys=[key_pair_bytes[0]])
         for file_path in files:
