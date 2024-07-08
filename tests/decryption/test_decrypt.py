@@ -76,7 +76,7 @@ class TestDecryptFiles:
         return [INPUT_DIR/"hello.txt"]
 
     @pytest.mark.parametrize("files", ["encrypted_files", "unencrypted_files", []])
-    def test_decrypt_files_handles_encrypted_and_unencrypted_files(self, files, key_pair_bytes, request):
+    def test_handles_encrypted_and_unencrypted_files(self, files, key_pair_bytes, request):
         """Test that decrypt_files decrypts only encrypted files in-place.
 
         Ensure no exception is thrown when attempting to decrypt unencrypted files.
