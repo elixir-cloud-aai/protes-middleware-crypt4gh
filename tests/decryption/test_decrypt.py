@@ -81,18 +81,27 @@ class TestDecryptFiles:
 
         Ensure no exception is thrown when attempting to decrypt unencrypted files.
         """
+        def files_exist():
+            for file_path in files:
+                if not file_path.exists():
+                    return False
+            return True
+
+        def file_contents_are_valid():
+            for file_path in files:
+                with open(file_path, encoding="utf-8") as f:
+                    output = f.read()
+                    if output != INPUT_TEXT:
+                        return False
+            return True
+
         # Handles fixture arguments
         if isinstance(files, str):
             files = request.getfixturevalue(files)
 
-        for file_path in files:
-            assert file_path.exists()
-
+        assert files_exist()
         decrypt_files(file_paths=files,
                       private_keys=[key_pair_bytes[0]])
+        assert files_exist()
 
-        for file_path in files:
-            assert file_path.exists()
-            with open(file_path, encoding="utf-8") as f:
-                output = f.read()
-                assert output == INPUT_TEXT
+        assert file_contents_are_valid()
