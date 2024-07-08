@@ -85,9 +85,14 @@ class TestDecryptFiles:
         if isinstance(files, str):
             files = request.getfixturevalue(files)
 
+        for file_path in files:
+            assert file_path.exists()
+
         decrypt_files(file_paths=files,
                       private_keys=[key_pair_bytes[0]])
+
         for file_path in files:
+            assert file_path.exists()
             with open(file_path, encoding="utf-8") as f:
                 output = f.read()
                 assert output == INPUT_TEXT
