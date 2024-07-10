@@ -79,10 +79,7 @@ class TestDecryptFiles:
         Ensure no exception is thrown when attempting to decrypt unencrypted files.
         """
         def files_exist():
-            for file_path in files:
-                if not file_path.exists():
-                    return False
-            return True
+            return all(file_path.exists() for file_path in files)
 
         def file_contents_are_valid():
             for file_path in files:
