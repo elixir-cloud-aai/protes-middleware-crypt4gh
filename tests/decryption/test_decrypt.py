@@ -59,16 +59,13 @@ class TestDecryptFiles:
         return sk_bytes, pk_bytes
 
     @pytest.fixture()
-    def encrypted_files(self, key_pair_bytes):
+    def encrypted_files(self, key_pair_bytes, tmp_path):
         """Returns the encrypted file paths and re-encrypts files after use."""
         encrypted_files = [INPUT_DIR/"hello.c4gh", INPUT_DIR/"hello2.c4gh"]
-        yield encrypted_files
-        # Re-encrypt files after decryption to ensure files are encrypted for each test
-        sk, pk = key_pair_bytes
-        for file_path in encrypted_files:
-            with open(file_path, "rb") as f_in, NamedTemporaryFile() as f_out:
-                encrypt(keys=[(0, sk, pk)], infile=f_in, outfile=f_out)
-                shutil.move(f_out.name, file_path)
+        temp_files = [tmp_path/"hello.c4gh", tmp_path/"hello2.c4gh"]
+        for src, dest in zip(encrypted_files, temp_files):
+            shutil.copy(src, dest)
+        return temp_files
 
     @pytest.fixture()
     def unencrypted_files(self):
