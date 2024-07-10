@@ -1,10 +1,8 @@
 """Tests for decrypt.py"""
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 import shutil
 
 from crypt4gh.keys import get_private_key as get_sk_bytes, get_public_key as get_pk_bytes
-from crypt4gh.lib import encrypt
 import pytest
 
 from crypt4gh_middleware.decrypt import get_private_keys, decrypt_files
@@ -59,7 +57,7 @@ class TestDecryptFiles:
         return sk_bytes, pk_bytes
 
     @pytest.fixture()
-    def encrypted_files(self, key_pair_bytes, tmp_path):
+    def encrypted_files(self, tmp_path):
         """Returns the encrypted file paths and re-encrypts files after use."""
         encrypted_files = [INPUT_DIR/"hello.c4gh", INPUT_DIR/"hello2.c4gh"]
         temp_files = [tmp_path/"hello.c4gh", tmp_path/"hello2.c4gh"]
