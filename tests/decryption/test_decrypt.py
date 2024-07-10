@@ -89,7 +89,7 @@ class TestDecryptFiles:
                         return False
             return True
 
-        # Handles fixture arguments
+        # Fixture names passed to pytest.mark.parametrize are strings, so get value
         if isinstance(files, str):
             files = request.getfixturevalue(files)
 
