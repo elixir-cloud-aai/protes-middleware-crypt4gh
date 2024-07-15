@@ -58,7 +58,7 @@ class TestDecryptFiles:
 
     @pytest.fixture()
     def encrypted_files(self, tmp_path):
-        """Returns the encrypted file paths and re-encrypts files after use."""
+        """Returns temporary copies of encrypted files."""
         encrypted_files = [INPUT_DIR/"hello.c4gh", INPUT_DIR/"hello2.c4gh"]
         temp_files = [tmp_path/"hello.c4gh", tmp_path/"hello2.c4gh"]
         for src, dest in zip(encrypted_files, temp_files):
