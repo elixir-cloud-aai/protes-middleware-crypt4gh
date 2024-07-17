@@ -8,8 +8,7 @@ import pytest
 from crypt4gh_middleware.decrypt import (
     get_private_keys,
     decrypt_files,
-    move_files,
-    remove_files
+    move_files
 )
 
 INPUT_DIR = Path(__file__).parents[2]/"inputs"
@@ -134,6 +133,6 @@ class TestMoveFiles:
             move_files(file_paths=[INPUT_DIR/"hello.txt"]*2, output_dir=tmp_path)
 
     def test_dir_does_not_exist(self, files):
+        """Test that a file not found error is raised with a non-existent directory."""
         with pytest.raises(FileNotFoundError):
             move_files(file_paths=files, output_dir=INPUT_DIR/"bad_dir")
-
