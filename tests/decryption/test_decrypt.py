@@ -5,7 +5,12 @@ import shutil
 from crypt4gh.keys import get_private_key as get_sk_bytes, get_public_key as get_pk_bytes
 import pytest
 
-from crypt4gh_middleware.decrypt import get_private_keys, decrypt_files
+from crypt4gh_middleware.decrypt import (
+    get_private_keys,
+    decrypt_files,
+    move_files,
+    remove_files
+)
 
 INPUT_DIR = Path(__file__).parents[2]/"inputs"
 INPUT_TEXT = "hello world from the input!"
@@ -97,3 +102,26 @@ class TestDecryptFiles:
         assert files_exist()
 
         assert file_contents_are_valid()
+
+
+class TestMoveFiles:
+    """Test move_files."""
+
+    @pytest.fixture()
+    def files(self):
+        """Returns list of input file paths."""
+        return [INPUT_DIR/"hello.txt", INPUT_DIR/"hello.c4gh", INPUT_DIR/"alice.sec"]
+
+    def test_empty_list(self, tmp_path):
+        """Test that no error is thrown with an empty list."""
+        move_files(file_paths=[], output_dir=tmp_path)
+
+    def test_move_files(self, files, tmp_path):
+        """Test that a list of unique files are moved successfully."""
+        move_files(file_paths=files, output_dir=tmp_path)
+        assert all((tmp_path/file.name).exists() for file in files)
+
+    def test_duplicate_file_names(self, tmp_path):
+        """Test that a value error is raised when a duplicate file name is present."""
+        with pytest.raises(ValueError):
+            move_files(file_paths=[INPUT_DIR/"hello.txt"]*2, output_dir=tmp_path)
