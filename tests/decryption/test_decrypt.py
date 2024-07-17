@@ -118,6 +118,7 @@ class TestMoveFiles:
     def test_empty_list(self, tmp_path):
         """Test that no error is thrown with an empty list."""
         move_files(file_paths=[], output_dir=tmp_path)
+        assert not any(tmp_path.iterdir())
 
     def test_move_files(self, files, tmp_path):
         """Test that a list of unique files are moved successfully."""
@@ -136,3 +137,11 @@ class TestMoveFiles:
         """Test that a file not found error is raised with a non-existent directory."""
         with pytest.raises(FileNotFoundError):
             move_files(file_paths=files, output_dir=INPUT_DIR/"bad_dir")
+
+    def test_permission_error(self, files, tmp_path):
+        """Test that a permission error is raised when the output directory is not writable."""
+        output_dir = tmp_path / "forbidden_dir"
+        output_dir.mkdir()
+        output_dir.chmod(0o400)
+        with pytest.raises(PermissionError):
+            move_files(file_paths=[INPUT_DIR/"hello.txt"], output_dir=output_dir)
