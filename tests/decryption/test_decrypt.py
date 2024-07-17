@@ -140,7 +140,7 @@ class TestMoveFiles:
 
     def test_permission_error(self, tmp_path):
         """Test that a permission error is raised when the output directory is not writable."""
-        output_dir = tmp_path / "forbidden_dir"
+        output_dir = tmp_path/"forbidden_dir"
         output_dir.mkdir()
         output_dir.chmod(0o400)
         with pytest.raises(PermissionError):
