@@ -138,7 +138,7 @@ class TestMoveFiles:
         with pytest.raises(FileNotFoundError):
             move_files(file_paths=files, output_dir=INPUT_DIR/"bad_dir")
 
-    def test_permission_error(self, files, tmp_path):
+    def test_permission_error(self, tmp_path):
         """Test that a permission error is raised when the output directory is not writable."""
         output_dir = tmp_path / "forbidden_dir"
         output_dir.mkdir()
