@@ -108,9 +108,13 @@ class TestMoveFiles:
     """Test move_files."""
 
     @pytest.fixture()
-    def files(self):
+    def files(self, tmp_path):
         """Returns list of input file paths."""
-        return [INPUT_DIR/"hello.txt", INPUT_DIR/"hello.c4gh", INPUT_DIR/"alice.sec"]
+        files = [INPUT_DIR/"hello.txt", INPUT_DIR/"hello.c4gh", INPUT_DIR/"alice.sec"]
+        temp_files = [tmp_path/file.name for file in files]
+        for src, dest in zip(files, temp_files):
+            shutil.copy(src, dest)
+        return temp_files
 
     def test_empty_list(self, tmp_path):
         """Test that no error is thrown with an empty list."""
@@ -118,10 +122,18 @@ class TestMoveFiles:
 
     def test_move_files(self, files, tmp_path):
         """Test that a list of unique files are moved successfully."""
-        move_files(file_paths=files, output_dir=tmp_path)
-        assert all((tmp_path/file.name).exists() for file in files)
+        dest = tmp_path/"new_location"
+        dest.mkdir()
+        move_files(file_paths=files, output_dir=dest)
+        assert not any(file.exists() for file in files)
+        assert all((dest/file.name).exists() for file in files)
 
     def test_duplicate_file_names(self, tmp_path):
         """Test that a value error is raised when a duplicate file name is present."""
         with pytest.raises(ValueError):
             move_files(file_paths=[INPUT_DIR/"hello.txt"]*2, output_dir=tmp_path)
+
+    def test_dir_does_not_exist(self, files):
+        with pytest.raises(FileNotFoundError):
+            move_files(file_paths=files, output_dir=INPUT_DIR/"bad_dir")
+
