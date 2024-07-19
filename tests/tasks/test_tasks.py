@@ -1,9 +1,11 @@
 """Tests for I/O and decryption tasks"""
 
-from time import sleep
 import json
-import requests
+import signal
+from time import sleep
+
 import pytest
+import requests
 
 from task_bodies import (
     output_dir,
@@ -17,6 +19,20 @@ HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
 INPUT_TEXT = "hello world from the input!"
 TIME_LIMIT = 60
+
+
+def timeout(func):
+    """Decorator that enforces a time limit on a function."""
+    def handler(signum, frame):
+        raise TimeoutError(f"Task did not complete within {TIME_LIMIT} seconds")
+
+    def wrapper(*args, **kwargs):
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(TIME_LIMIT)
+        func(*args, **kwargs)
+        signal.alarm(0)
+
+    return wrapper
 
 
 def create_task(tasks_body):
@@ -35,16 +51,13 @@ def get_task(task_id):
 
 def get_task_state(task_id):
     """Retrieves state of task until completion."""
+    @timeout
     def wait_for_task_completion():
         nonlocal task_state
-        elapsed_seconds = 0
         get_response = get_task(task_id)
         task_state = json.loads(get_response.text)["state"]
         while task_state in WAIT_STATUSES:
-            if elapsed_seconds >= TIME_LIMIT:
-                raise requests.Timeout(f"Task did not complete within {TIME_LIMIT} seconds.")
             sleep(1)
-            elapsed_seconds += 1
             get_response = get_task(task_id)
             task_state = json.loads(get_response.text)["state"]
 
@@ -76,14 +89,12 @@ def test_task(post_response, task_state, filename, expected_output):
     assert post_response.status_code == 200
     assert task_state == "COMPLETE"
 
-    elapsed_seconds = 0
-    while not (output_dir/filename).exists():
-        if elapsed_seconds == TIME_LIMIT:
-            raise FileNotFoundError(f"{filename} did not download to {output_dir} "
-                                    f"within {TIME_LIMIT} seconds.")
-        sleep(1)
-        elapsed_seconds += 1
+    @timeout
+    def wait_for_file_to_download():
+        while not (output_dir/filename).exists():
+            sleep(1)
 
+    wait_for_file_to_download()
     with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
         assert output == expected_output
