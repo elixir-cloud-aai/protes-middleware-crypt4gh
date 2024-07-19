@@ -68,8 +68,10 @@ def get_task_state(task_id):
 
 @timeout
 def wait_for_file_to_download(filename):
+    """Waits for file with given filename to download."""
     while not (output_dir/filename).exists():
         sleep(1)
+
 
 @pytest.fixture(name="post_response")
 def fixture_post_response(request):
