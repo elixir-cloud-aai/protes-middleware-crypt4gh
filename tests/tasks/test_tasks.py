@@ -66,6 +66,11 @@ def get_task_state(task_id):
     return task_state
 
 
+@timeout
+def wait_for_file_to_download(filename):
+    while not (output_dir/filename).exists():
+        sleep(1)
+
 @pytest.fixture(name="post_response")
 def fixture_post_response(request):
     """Returns response received after creating task."""
@@ -89,12 +94,8 @@ def test_task(post_response, task_state, filename, expected_output):
     assert post_response.status_code == 200
     assert task_state == "COMPLETE"
 
-    @timeout
-    def wait_for_file_to_download():
-        while not (output_dir/filename).exists():
-            sleep(1)
+    wait_for_file_to_download(filename)
 
-    wait_for_file_to_download()
     with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
         assert output == expected_output
