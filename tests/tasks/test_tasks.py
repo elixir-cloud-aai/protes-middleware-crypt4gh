@@ -34,7 +34,6 @@ def timeout(func):
 
     return wrapper
 
-
 def create_task(tasks_body):
     """Creates task with the given task body."""
     return requests.post(
