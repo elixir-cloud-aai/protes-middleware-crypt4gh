@@ -35,30 +35,6 @@ def timeout(func):
     return wrapper
 
 
-def get_task(task_id):
-    """Retrieves list of tasks."""
-    return requests.get(
-        url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
-    )
-
-
-def get_task_state(task_id):
-    """Retrieves state of task until completion."""
-    @timeout
-    def wait_for_task_completion():
-        nonlocal task_state
-        get_response = get_task(task_id)
-        task_state = json.loads(get_response.text)["state"]
-        while task_state in WAIT_STATUSES:
-            sleep(1)
-            get_response = get_task(task_id)
-            task_state = json.loads(get_response.text)["state"]
-
-    task_state = ""
-    wait_for_task_completion()
-    return task_state
-
-
 @timeout
 def wait_for_file_to_download(filename):
     """Waits for file with given filename to download."""
@@ -77,8 +53,25 @@ def fixture_post_response(request):
 @pytest.fixture(name="task_state")
 def fixture_task_state(post_response):
     """Returns state of task after completion."""
+    def get_task():
+        return requests.get(
+            url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
+        )
+
+    @timeout
+    def wait_for_task_completion():
+        nonlocal task_state
+        get_response = get_task()
+        task_state = json.loads(get_response.text)["state"]
+        while task_state in WAIT_STATUSES:
+            sleep(1)
+            get_response = get_task()
+            task_state = json.loads(get_response.text)["state"]
+
     task_id = json.loads(post_response.text)["id"]
-    return get_task_state(task_id)
+    task_state = ""
+    wait_for_task_completion()
+    return task_state
 
 
 @pytest.mark.parametrize("post_response,filename,expected_output", [
