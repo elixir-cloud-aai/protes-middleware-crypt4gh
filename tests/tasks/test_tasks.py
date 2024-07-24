@@ -35,13 +35,6 @@ def timeout(func):
     return wrapper
 
 
-def create_task(tasks_body):
-    """Creates task with the given task body."""
-    return requests.post(
-        url=f"{TES_URL}/tasks", headers=HEADERS, json=tasks_body, timeout=TIME_LIMIT
-    )
-
-
 def get_task(task_id):
     """Retrieves list of tasks."""
     return requests.get(
@@ -76,7 +69,9 @@ def wait_for_file_to_download(filename):
 @pytest.fixture(name="post_response")
 def fixture_post_response(request):
     """Returns response received after creating task."""
-    return create_task(request.param)
+    return requests.post(
+        url=f"{TES_URL}/tasks", headers=HEADERS, json=request.param, timeout=TIME_LIMIT
+    )
 
 
 @pytest.fixture(name="task_state")
