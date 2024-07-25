@@ -13,8 +13,8 @@ def timeout(time_limit):
         def wrapper(*args, **kwargs):
             signal.signal(signal.SIGALRM, handler)
             signal.alarm(time_limit)
-            func(*args, **kwargs)
+            result = func(*args, **kwargs)
             signal.alarm(0)
+            return result
         return wrapper
-
     return decorator
