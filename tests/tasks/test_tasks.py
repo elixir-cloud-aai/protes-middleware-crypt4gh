@@ -1,7 +1,6 @@
 """Tests for I/O and decryption tasks"""
 
 import json
-import signal
 from time import sleep
 
 import pytest
@@ -13,29 +12,14 @@ from task_bodies import (
     decryption_task_body,
     uppercase_task_with_decryption_body
 )
+from tests.utils import timeout
 
 TES_URL = "http://localhost:8090/ga4gh/tes/v1"
 HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
 INPUT_TEXT = "hello world from the input!"
-TIME_LIMIT = 60
 
 
-def timeout(func):
-    """Decorator that enforces a time limit on a function."""
-    def handler(signum, frame):
-        raise TimeoutError(f"Task did not complete within {TIME_LIMIT} seconds")
-
-    def wrapper(*args, **kwargs):
-        signal.signal(signal.SIGALRM, handler)
-        signal.alarm(TIME_LIMIT)
-        func(*args, **kwargs)
-        signal.alarm(0)
-
-    return wrapper
-
-
-@timeout
 def wait_for_file_download(filename):
     """Waits for file with given filename to download."""
     while not (output_dir/filename).exists():
@@ -46,18 +30,19 @@ def wait_for_file_download(filename):
 def fixture_task(request):
     """Returns response received after creating task."""
     return requests.post(
-        url=f"{TES_URL}/tasks", headers=HEADERS, json=request.param, timeout=TIME_LIMIT
+        url=f"{TES_URL}/tasks", headers=HEADERS, json=request.param
     )
 
 
 @pytest.fixture(name="final_task_info")
+@timeout(time_limit=60)
 def fixture_final_task_info(task):
     """Returns task information after completion."""
     task_id = json.loads(task.text)["id"]
     task_info = None
     for _ in range(30):
         task_info = requests.get(
-            url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
+            url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS
         )
         task_state = json.loads(task_info.text)["state"]
         if task_state not in WAIT_STATUSES:
@@ -72,6 +57,7 @@ def fixture_final_task_info(task):
     (decryption_task_body, "hello-decrypted.txt", INPUT_TEXT),
     (uppercase_task_with_decryption_body, "hello-upper-decrypt.txt", INPUT_TEXT.upper())
 ], indirect=["task"])
+@timeout(time_limit=10)
 def test_task(task, final_task_info, filename, expected_output):
     """Test tasks for successful completion and intended behavior."""
     assert task.status_code == 200
