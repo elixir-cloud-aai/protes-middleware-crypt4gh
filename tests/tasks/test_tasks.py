@@ -53,20 +53,19 @@ def fixture_task(request):
 @pytest.fixture(name="final_task_state")
 def fixture_final_task_state(task):
     """Returns state of task after completion."""
-    def get_task():
-        return requests.get(
-            url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
-        )
-
     @timeout
     def wait_for_task_completion():
         nonlocal final_task_state
-        get_response = get_task()
-        final_task_state = json.loads(get_response.text)["state"]
+        task_info = requests.get(
+            url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
+        )
+        final_task_state = json.loads(task_info.text)["state"]
         while final_task_state in WAIT_STATUSES:
             sleep(1)
-            get_response = get_task()
-            final_task_state = json.loads(get_response.text)["state"]
+            task_info = requests.get(
+                url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
+            )
+            final_task_state = json.loads(task_info.text)["state"]
 
     task_id = json.loads(task.text)["id"]
     final_task_state = ""
@@ -84,7 +83,7 @@ def test_task(task, final_task_state, filename, expected_output):
     assert task.status_code == 200
     assert final_task_state == "COMPLETE"
 
-    wait_for_file_to_download(filename)
+    wait_for_file_download(filename)
 
     with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
