@@ -38,6 +38,7 @@ def fixture_task(request):
 @timeout(time_limit=60)
 def fixture_final_task_info(task):
     """Returns task information after completion."""
+    assert task.status_code == 200
     task_id = json.loads(task.text)["id"]
     task_info = None
     for _ in range(30):
@@ -58,9 +59,8 @@ def fixture_final_task_info(task):
     (uppercase_task_with_decryption_body, "hello-upper-decrypt.txt", INPUT_TEXT.upper())
 ], indirect=["task"])
 @timeout(time_limit=10)
-def test_task(task, final_task_info, filename, expected_output):
+def test_task(task, final_task_info, filename, expected_output):  # pylint: disable=unused-argument
     """Test tasks for successful completion and intended behavior."""
-    assert task.status_code == 200
     assert final_task_info["state"] == "COMPLETE"
 
     wait_for_file_download(filename)
