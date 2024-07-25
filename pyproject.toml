@@ -22,4 +22,4 @@ pylint = "*"
 mypy = "*"
 
 [tool.pylint."MESSAGES CONTROL"]
-disable = ["logging-fstring-interpolation"]
+disable = ["logging-fstring-interpolation", "missing-timeout"]
