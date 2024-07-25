@@ -42,8 +42,8 @@ def wait_for_file_to_download(filename):
         sleep(1)
 
 
-@pytest.fixture(name="post_response")
-def fixture_post_response(request):
+@pytest.fixture(name="task")
+def fixture_task(request):
     """Returns response received after creating task."""
     return requests.post(
         url=f"{TES_URL}/tasks", headers=HEADERS, json=request.param, timeout=TIME_LIMIT
@@ -51,7 +51,7 @@ def fixture_post_response(request):
 
 
 @pytest.fixture(name="task_state")
-def fixture_task_state(post_response):
+def task_state(task):
     """Returns state of task after completion."""
     def get_task():
         return requests.get(
@@ -68,20 +68,20 @@ def fixture_task_state(post_response):
             get_response = get_task()
             task_state = json.loads(get_response.text)["state"]
 
-    task_id = json.loads(post_response.text)["id"]
+    task_id = json.loads(task.text)["id"]
     task_state = ""
     wait_for_task_completion()
     return task_state
 
 
-@pytest.mark.parametrize("post_response,filename,expected_output", [
+@pytest.mark.parametrize("task,filename,expected_output", [
     (uppercase_task_body, "hello-upper.txt", INPUT_TEXT.upper()),
     (decryption_task_body, "hello-decrypted.txt", INPUT_TEXT),
     (uppercase_task_with_decryption_body, "hello-upper-decrypt.txt", INPUT_TEXT.upper())
-], indirect=['post_response'])
-def test_task(post_response, task_state, filename, expected_output):
+], indirect=['task'])
+def test_task(task, task_state, filename, expected_output):
     """Test tasks for successful completion and intended behavior."""
-    assert post_response.status_code == 200
+    assert task.status_code == 200
     assert task_state == "COMPLETE"
 
     wait_for_file_to_download(filename)
