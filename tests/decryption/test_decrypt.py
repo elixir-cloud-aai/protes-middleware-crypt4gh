@@ -47,21 +47,21 @@ class TestGetPrivateKeys:
 class TestDecryptFiles:
     """Test decrypt_files."""
 
-    @pytest.fixture()
-    def key_pair(self):
+    @pytest.fixture(name="key_pair")
+    def fixture_key_pair(self):
         """Returns the key pair used to encrypt the input files."""
         return INPUT_DIR/"alice.sec", INPUT_DIR/"alice.pub"
 
-    @pytest.fixture()
-    def key_pair_bytes(self, key_pair):
+    @pytest.fixture(name="key_pair_bytes")
+    def fixture_key_pair_bytes(self, key_pair):
         """Returns the bytes of the key pair."""
         sk, pk = key_pair
         sk_bytes = get_sk_bytes(filepath=sk, callback=lambda x: '')
         pk_bytes = get_pk_bytes(filepath=pk)
         return sk_bytes, pk_bytes
 
-    @pytest.fixture()
-    def encrypted_files(self, tmp_path):
+    @pytest.fixture(name="encrypted_files")
+    def fixture_encrypted_files(self, tmp_path):
         """Returns temporary copies of encrypted files."""
         encrypted_files = [INPUT_DIR/"hello.c4gh", INPUT_DIR/"hello2.c4gh"]
         temp_files = [tmp_path/"hello.c4gh", tmp_path/"hello2.c4gh"]
@@ -69,8 +69,8 @@ class TestDecryptFiles:
             shutil.copy(src, dest)
         return temp_files
 
-    @pytest.fixture()
-    def unencrypted_files(self):
+    @pytest.fixture(name="unencrypted_files")
+    def fixture_unencrypted_files(self):
         """Returns the unencrypted file paths"""
         return [INPUT_DIR/"hello.txt"]
 
@@ -106,8 +106,8 @@ class TestDecryptFiles:
 class TestMoveFiles:
     """Test move_files."""
 
-    @pytest.fixture()
-    def files(self, tmp_path):
+    @pytest.fixture(name="files")
+    def fixture_files(self, tmp_path):
         """Returns list of input file paths."""
         files = [INPUT_DIR/"hello.txt", INPUT_DIR/"hello.c4gh", INPUT_DIR/"alice.sec"]
         temp_files = [tmp_path/file.name for file in files]
