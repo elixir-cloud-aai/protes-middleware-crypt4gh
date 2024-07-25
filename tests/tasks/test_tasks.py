@@ -50,11 +50,11 @@ def fixture_task(request):
     )
 
 
-@pytest.fixture(name="final_task_state")
-def fixture_final_task_state(task):
-    """Returns state of task after completion."""
+@pytest.fixture(name="final_task_info")
+def fixture_final_task_info(task):
+    """Returns task information after completion."""
     task_id = json.loads(task.text)["id"]
-    task_state = "UNKNOWN"
+    task_info = None
     for _ in range(30):
         task_info = requests.get(
             url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
@@ -64,24 +64,23 @@ def fixture_final_task_state(task):
             break
         sleep(1)
 
-    return task_state
+    return json.loads(task_info.text)
 
 
 @pytest.mark.parametrize("task,filename,expected_output", [
     (uppercase_task_body, "hello-upper.txt", INPUT_TEXT.upper()),
     (decryption_task_body, "hello-decrypted.txt", INPUT_TEXT),
     (uppercase_task_with_decryption_body, "hello-upper-decrypt.txt", INPUT_TEXT.upper())
-], indirect=['task'])
-def test_task(task, final_task_state, filename, expected_output):
+], indirect=["task"])
+def test_task(task, final_task_info, filename, expected_output):
     """Test tasks for successful completion and intended behavior."""
     assert task.status_code == 200
-    assert final_task_state == "COMPLETE"
+    assert final_task_info["state"] == "COMPLETE"
 
     wait_for_file_download(filename)
 
     with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
         assert output == expected_output
-        assert len(output) == len(expected_output)
-        if "upper" in filename:
-            assert output.isupper()
+        true_result = output.isupper() if "upper" in filename else not output.isupper()
+        assert true_result
