@@ -36,7 +36,7 @@ def timeout(func):
 
 
 @timeout
-def wait_for_file_to_download(filename):
+def wait_for_file_download(filename):
     """Waits for file with given filename to download."""
     while not (output_dir/filename).exists():
         sleep(1)
