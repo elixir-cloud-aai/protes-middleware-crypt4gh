@@ -53,24 +53,18 @@ def fixture_task(request):
 @pytest.fixture(name="final_task_state")
 def fixture_final_task_state(task):
     """Returns state of task after completion."""
-    @timeout
-    def wait_for_task_completion():
-        nonlocal final_task_state
+    task_id = json.loads(task.text)["id"]
+    task_state = "UNKNOWN"
+    for _ in range(30):
         task_info = requests.get(
             url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
         )
-        final_task_state = json.loads(task_info.text)["state"]
-        while final_task_state in WAIT_STATUSES:
-            sleep(1)
-            task_info = requests.get(
-                url=f"{TES_URL}/tasks/{task_id}", headers=HEADERS, timeout=TIME_LIMIT
-            )
-            final_task_state = json.loads(task_info.text)["state"]
+        task_state = json.loads(task_info.text)["state"]
+        if task_state not in WAIT_STATUSES:
+            break
+        sleep(1)
 
-    task_id = json.loads(task.text)["id"]
-    final_task_state = ""
-    wait_for_task_completion()
-    return final_task_state
+    return task_state
 
 
 @pytest.mark.parametrize("task,filename,expected_output", [
