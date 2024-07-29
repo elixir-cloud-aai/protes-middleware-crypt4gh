@@ -160,6 +160,13 @@ class TestGetArgs:
             assert args.output_dir == Path("dir")
             assert args.file_paths == [Path("file.txt")]
 
+    def test_multiple_files(self):
+        """Test that multiple file paths can be passed."""
+        files = ["file.txt", "file2.txt", "file3.txt"]
+        with mock.patch("sys.argv", ["decrypt.py"] + files):
+            args = get_args()
+            assert args.file_paths == [Path(file) for file in files]
+
     def test_default_output_dir(self):
         """Test that output_dir defaults to $TMPDIR when no directory is passed."""
         with (mock.patch("sys.argv", ["decrypt.py", "file.txt"]),
