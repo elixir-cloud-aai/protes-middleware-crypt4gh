@@ -1,6 +1,8 @@
 """Tests for decrypt.py"""
+import os
 from pathlib import Path
 import shutil
+from unittest import mock
 
 from crypt4gh.keys import get_private_key as get_sk_bytes, get_public_key as get_pk_bytes
 import pytest
@@ -8,7 +10,8 @@ import pytest
 from crypt4gh_middleware.decrypt import (
     get_private_keys,
     decrypt_files,
-    move_files
+    move_files,
+    get_args
 )
 
 INPUT_DIR = Path(__file__).parents[2]/"inputs"
@@ -145,3 +148,33 @@ class TestMoveFiles:
         output_dir.chmod(0o400)
         with pytest.raises(PermissionError):
             move_files(file_paths=[INPUT_DIR/"hello.txt"], output_dir=output_dir)
+
+
+class TestGetArgs:
+    """Test get_args."""
+
+    def test_get_args(self):
+        """Test that the arguments are parsed correctly."""
+        with mock.patch("sys.argv", ["decrypt.py", "--output-dir", "dir", "file.txt"]):
+            args = get_args()
+            assert args.output_dir == Path("dir")
+            assert args.file_paths == [Path("file.txt")]
+
+    def test_default_output_dir(self):
+        """Test that output_dir defaults to $TMPDIR when no directory is passed."""
+        with mock.patch("sys.argv", ["decrypt.py", "file.txt"]):
+            args = get_args()
+            assert args.output_dir == Path(os.getenv("TMPDIR"))
+            assert args.file_paths == [Path("file.txt")]
+
+    def test_invalid_argument(self):
+        """Test that a system exit occurs when an invalid argument is passed."""
+        with mock.patch("sys.argv", ["decrypt.py", "--bad-argument", "dir", "file.txt"]):
+            with pytest.raises(SystemExit):
+                get_args()
+
+    def test_no_file_paths(self):
+        """Test that a system exit occurs when no file paths are passed."""
+        with mock.patch("sys.argv", ["decrypt.py", "--output-dir", "dir"]):
+            with pytest.raises(SystemExit):
+                get_args()
