@@ -163,6 +163,7 @@ class TestRemoveFiles:
         empty_dir = tmp_path/"empty"
         empty_dir.mkdir()
         remove_files(empty_dir)
+        assert not any(empty_dir.iterdir())
 
     def test_dir_does_not_exist(self, tmp_path):
         """Test that a value error is raised when a non-existent directory is passed."""
