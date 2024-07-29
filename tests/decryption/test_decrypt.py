@@ -8,11 +8,22 @@ import pytest
 from crypt4gh_middleware.decrypt import (
     get_private_keys,
     decrypt_files,
-    move_files
+    move_files,
+    remove_files
 )
 
 INPUT_DIR = Path(__file__).parents[2]/"inputs"
 INPUT_TEXT = "hello world from the input!"
+
+
+@pytest.fixture(name="files")
+def fixture_files(tmp_path):
+    """Returns list of input file paths."""
+    files = [INPUT_DIR / "hello.txt", INPUT_DIR / "hello.c4gh", INPUT_DIR / "alice.sec"]
+    temp_files = [tmp_path / file.name for file in files]
+    for src, dest in zip(files, temp_files):
+        shutil.copy(src, dest)
+    return temp_files
 
 
 class TestGetPrivateKeys:
@@ -106,15 +117,6 @@ class TestDecryptFiles:
 class TestMoveFiles:
     """Test move_files."""
 
-    @pytest.fixture(name="files")
-    def fixture_files(self, tmp_path):
-        """Returns list of input file paths."""
-        files = [INPUT_DIR/"hello.txt", INPUT_DIR/"hello.c4gh", INPUT_DIR/"alice.sec"]
-        temp_files = [tmp_path/file.name for file in files]
-        for src, dest in zip(files, temp_files):
-            shutil.copy(src, dest)
-        return temp_files
-
     def test_empty_list(self, tmp_path):
         """Test that no error is thrown with an empty list."""
         move_files(file_paths=[], output_dir=tmp_path)
@@ -145,3 +147,24 @@ class TestMoveFiles:
         output_dir.chmod(0o400)
         with pytest.raises(PermissionError):
             move_files(file_paths=[INPUT_DIR/"hello.txt"], output_dir=output_dir)
+
+
+class TestRemoveFiles:
+    """Test remove_files."""
+
+    def test_remove_files(self, files, tmp_path):
+        """Test that the files in a directory are removed successfully."""
+        assert all(file.exists() for file in files)
+        remove_files(tmp_path)
+        assert not any(file.exists() for file in files)
+
+    def test_empty_dir(self, tmp_path):
+        """Test that no error is raised when an empty directory is passed."""
+        empty_dir = tmp_path/"empty"
+        empty_dir.mkdir()
+        remove_files(empty_dir)
+
+    def test_dir_does_not_exist(self, tmp_path):
+        """Test that a value error is raised when a non-existent directory is passed."""
+        with pytest.raises(ValueError):
+            remove_files(tmp_path/"bad_dir")
