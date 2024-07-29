@@ -170,12 +170,12 @@ class TestGetArgs:
 
     def test_invalid_argument(self):
         """Test that a system exit occurs when an invalid argument is passed."""
-        with mock.patch("sys.argv", ["decrypt.py", "--bad-argument", "dir", "file.txt"]):
-            with pytest.raises(SystemExit):
-                get_args()
+        with (mock.patch("sys.argv", ["decrypt.py", "--bad-argument", "dir", "file.txt"]),
+              pytest.raises(SystemExit)):
+            get_args()
 
     def test_no_file_paths(self):
         """Test that a system exit occurs when no file paths are passed."""
-        with mock.patch("sys.argv", ["decrypt.py", "--output-dir", "dir"]):
-            with pytest.raises(SystemExit):
-                get_args()
+        with (mock.patch("sys.argv", ["decrypt.py", "--output-dir", "dir"]),
+              pytest.raises(SystemExit)):
+            get_args()
