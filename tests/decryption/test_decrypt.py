@@ -169,3 +169,10 @@ class TestRemoveFiles:
         """Test that a value error is raised when a non-existent directory is passed."""
         with pytest.raises(ValueError):
             remove_files(tmp_path/"bad_dir")
+
+    def test_non_directory_path(self, tmp_path):
+        """Test that a value error is raised when a non-directory path is passed."""
+        non_dir_path = tmp_path/"file.txt"
+        non_dir_path.touch()
+        with pytest.raises(ValueError):
+            remove_files(non_dir_path)
