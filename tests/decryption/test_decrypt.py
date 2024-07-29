@@ -162,9 +162,10 @@ class TestGetArgs:
 
     def test_default_output_dir(self):
         """Test that output_dir defaults to $TMPDIR when no directory is passed."""
-        with mock.patch("sys.argv", ["decrypt.py", "file.txt"]):
+        with (mock.patch("sys.argv", ["decrypt.py", "file.txt"]),
+              mock.patch.dict(os.environ, {"TMPDIR": "/mock/tmpdir"})):
             args = get_args()
-            assert args.output_dir == Path(os.getenv("TMPDIR"))
+            assert args.output_dir == Path("/mock/tmpdir")
             assert args.file_paths == [Path("file.txt")]
 
     def test_invalid_argument(self):
