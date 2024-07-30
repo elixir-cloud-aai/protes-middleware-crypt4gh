@@ -20,8 +20,8 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Lint with pylint
-        run: poetry run pylint tests/tasks/* crypt4gh_middleware/*
+        run: poetry run pylint tests/* crypt4gh_middleware/*
       - name: Lint with ruff
-        run: poetry run ruff check tests/tasks/* crypt4gh_middleware/*
+        run: poetry run ruff check tests/* crypt4gh_middleware/*
       - name: Type checking with mypy
         run: poetry run mypy crypt4gh_middleware
