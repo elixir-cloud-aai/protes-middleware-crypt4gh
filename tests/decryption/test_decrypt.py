@@ -153,6 +153,7 @@ class TestMoveFiles:
 
 @contextlib.contextmanager
 def patch_cli(args):
+    """Context manager that patches sys.argv."""
     with mock.patch("sys.argv", args):
         yield
 
