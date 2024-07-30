@@ -1,5 +1,4 @@
 """Tests for decrypt.py"""
-import contextlib
 import os
 from pathlib import Path
 import shutil
@@ -14,6 +13,7 @@ from crypt4gh_middleware.decrypt import (
     move_files,
     get_args
 )
+from tests.utils import patch_cli
 
 INPUT_DIR = Path(__file__).parents[2]/"inputs"
 INPUT_TEXT = "hello world from the input!"
@@ -149,13 +149,6 @@ class TestMoveFiles:
         output_dir.chmod(0o400)
         with pytest.raises(PermissionError):
             move_files(file_paths=[INPUT_DIR/"hello.txt"], output_dir=output_dir)
-
-
-@contextlib.contextmanager
-def patch_cli(args):
-    """Context manager that patches sys.argv."""
-    with mock.patch("sys.argv", args):
-        yield
 
 
 class TestGetArgs:
