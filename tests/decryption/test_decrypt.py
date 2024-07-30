@@ -1,4 +1,5 @@
 """Tests for decrypt.py"""
+import contextlib
 import os
 from pathlib import Path
 import shutil
@@ -150,12 +151,18 @@ class TestMoveFiles:
             move_files(file_paths=[INPUT_DIR/"hello.txt"], output_dir=output_dir)
 
 
+@contextlib.contextmanager
+def patch_cli(args):
+    with mock.patch("sys.argv", args):
+        yield
+
+
 class TestGetArgs:
     """Test get_args."""
 
     def test_get_args(self):
         """Test that the arguments are parsed correctly."""
-        with mock.patch("sys.argv", ["decrypt.py", "--output-dir", "dir", "file.txt"]):
+        with patch_cli(["decrypt.py", "--output-dir", "dir", "file.txt"]):
             args = get_args()
             assert args.output_dir == Path("dir")
             assert args.file_paths == [Path("file.txt")]
@@ -163,13 +170,13 @@ class TestGetArgs:
     def test_multiple_files(self):
         """Test that multiple file paths can be passed."""
         files = ["file.txt", "file2.txt", "file3.txt"]
-        with mock.patch("sys.argv", ["decrypt.py"] + files):
+        with patch_cli(["decrypt.py"] + files):
             args = get_args()
             assert args.file_paths == [Path(file) for file in files]
 
     def test_default_output_dir(self):
         """Test that output_dir defaults to $TMPDIR when no directory is passed."""
-        with (mock.patch("sys.argv", ["decrypt.py", "file.txt"]),
+        with (patch_cli(["decrypt.py", "file.txt"]),
               mock.patch.dict(os.environ, {"TMPDIR": "/mock/tmpdir"})):
             args = get_args()
             assert args.output_dir == Path("/mock/tmpdir")
@@ -177,12 +184,12 @@ class TestGetArgs:
 
     def test_invalid_argument(self):
         """Test that a system exit occurs when an invalid argument is passed."""
-        with (mock.patch("sys.argv", ["decrypt.py", "--bad-argument", "dir", "file.txt"]),
+        with (patch_cli(["decrypt.py", "--bad-argument", "dir", "file.txt"]),
               pytest.raises(SystemExit)):
             get_args()
 
     def test_no_file_paths(self):
         """Test that a system exit occurs when no file paths are passed."""
-        with (mock.patch("sys.argv", ["decrypt.py", "--output-dir", "dir"]),
+        with (patch_cli(["decrypt.py", "--output-dir", "dir"]),
               pytest.raises(SystemExit)):
             get_args()
