@@ -19,12 +19,11 @@ TES_URL = "http://localhost:8090/ga4gh/tes/v1"
 HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
 INPUT_TEXT = "hello world from the input!"
-OUTPUT_DIR = Path(tmp_dir.name)
 
 
-def wait_for_file_download(filename):
+def wait_for_file_download(filename, output_path):
     """Waits for file with given filename to download."""
-    while not (OUTPUT_DIR/filename).exists():
+    while not (output_path/filename).exists():
         sleep(1)
 
 
@@ -65,11 +64,11 @@ def test_task(task, final_task_info, filename, expected_output):  # pylint: disa
     """Test tasks for successful completion and intended behavior."""
     assert final_task_info["state"] == "COMPLETE"
 
-    wait_for_file_download(filename)
-
-    with open(OUTPUT_DIR/filename, encoding="utf-8") as f:
-        output = f.read()
-        assert output == expected_output
-        true_result = output.isupper() if "upper" in filename else not output.isupper()
-        assert true_result
-        tmp_dir.cleanup()
+    with tmp_dir as output_dir:
+        output_path = Path(output_dir)
+        wait_for_file_download(filename=filename, output_path=output_path)
+        with open(output_path/filename, encoding="utf-8") as f:
+            output = f.read()
+            assert output == expected_output
+            true_result = output.isupper() if "upper" in filename else not output.isupper()
+            assert true_result
