@@ -1,6 +1,15 @@
 """ Utility functions for tests."""
 from functools import wraps
+import contextlib
 import signal
+from unittest import mock
+
+
+@contextlib.contextmanager
+def patch_cli(args):
+    """Context manager that patches sys.argv."""
+    with mock.patch("sys.argv", args):
+        yield
 
 
 def timeout(time_limit):
