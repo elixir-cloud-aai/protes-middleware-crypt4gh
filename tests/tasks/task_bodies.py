@@ -1,10 +1,11 @@
 """TES task request bodies used by tests"""
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 DIR = Path(__file__).parents[2]
 input_dir = DIR / "inputs"
-output_dir = DIR / "outputs"
+tmp_dir = TemporaryDirectory()  # pylint: disable=consider-using-with
 
 uppercase_task_body = {
         "name": "Hello world",
@@ -22,7 +23,7 @@ uppercase_task_body = {
         ],
         "outputs": [
             {
-                "url": f"file://{output_dir}/hello-upper.txt",
+                "url": f"file://{tmp_dir.name}/hello-upper.txt",
                 "path": "/outputs/hello-upper.txt",
                 "type": "FILE"
             }
@@ -61,7 +62,7 @@ decryption_task_body = {
         ],
         "outputs": [
             {
-                "url": f"file://{output_dir}/hello-decrypted.txt",
+                "url": f"file://{tmp_dir.name}/hello-decrypted.txt",
                 "path": "/outputs/hello-decrypted.txt",
                 "type": "FILE"
             }
@@ -105,7 +106,7 @@ uppercase_task_with_decryption_body = {
     ],
     "outputs": [
         {
-            "url": f"file://{output_dir}/hello-upper-decrypt.txt",
+            "url": f"file://{tmp_dir.name}/hello-upper-decrypt.txt",
             "path": "/outputs/hello-upper-decrypt.txt",
             "type": "FILE"
         }

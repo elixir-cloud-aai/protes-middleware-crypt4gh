@@ -1,13 +1,14 @@
 """Tests for I/O and decryption tasks"""
 
 import json
+from pathlib import Path
 from time import sleep
 
 import pytest
 import requests
 
 from task_bodies import (
-    output_dir,
+    tmp_dir,
     uppercase_task_body,
     decryption_task_body,
     uppercase_task_with_decryption_body
@@ -18,11 +19,12 @@ TES_URL = "http://localhost:8090/ga4gh/tes/v1"
 HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
 INPUT_TEXT = "hello world from the input!"
+OUTPUT_DIR = Path(tmp_dir.name)
 
 
 def wait_for_file_download(filename):
     """Waits for file with given filename to download."""
-    while not (output_dir/filename).exists():
+    while not (OUTPUT_DIR/filename).exists():
         sleep(1)
 
 
@@ -65,8 +67,9 @@ def test_task(task, final_task_info, filename, expected_output):  # pylint: disa
 
     wait_for_file_download(filename)
 
-    with open(output_dir/filename, encoding="utf-8") as f:
+    with open(OUTPUT_DIR/filename, encoding="utf-8") as f:
         output = f.read()
         assert output == expected_output
         true_result = output.isupper() if "upper" in filename else not output.isupper()
         assert true_result
+        tmp_dir.cleanup()
