@@ -1,13 +1,14 @@
 """TES task request bodies used by tests"""
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 DIR = Path(__file__).parents[2]
 input_dir = DIR / "inputs"
-tmp_dir = TemporaryDirectory()  # pylint: disable=consider-using-with
 
-uppercase_task_body = {
+
+def get_uppercase_task_body(tmp_dir):
+    """Returns TES task body that makes the contents of a file uppercase."""
+    return {
         "name": "Hello world",
         "inputs": [
             {
@@ -23,7 +24,7 @@ uppercase_task_body = {
         ],
         "outputs": [
             {
-                "url": f"file://{tmp_dir.name}/hello-upper.txt",
+                "url": f"file://{tmp_dir}/hello-upper.txt",
                 "path": "/outputs/hello-upper.txt",
                 "type": "FILE"
             }
@@ -41,7 +42,10 @@ uppercase_task_body = {
         ]
     }
 
-decryption_task_body = {
+
+def get_decryption_task_body(tmp_dir):
+    """Returns TES task body that decrypts a crypt4GH file."""
+    return {
         "name": "Decrypt with secret key as environment variable",
         "inputs": [
             {
@@ -62,7 +66,7 @@ decryption_task_body = {
         ],
         "outputs": [
             {
-                "url": f"file://{tmp_dir.name}/hello-decrypted.txt",
+                "url": f"file://{tmp_dir}/hello-decrypted.txt",
                 "path": "/outputs/hello-decrypted.txt",
                 "type": "FILE"
             }
@@ -80,58 +84,61 @@ decryption_task_body = {
         ]
     }
 
-uppercase_task_with_decryption_body = {
-    "name": "Decrypt with secret key as environment variable",
-    "inputs": [
-        {
-            "url": f"file://{input_dir}/hello.c4gh",
-            "path": "/inputs/hello.c4gh",
-            "type": "FILE"
-        },
-        {
-            "url": f"file://{input_dir}/alice.sec",
-            "path": "/inputs/alice.sec",
-            "type": "FILE"
-        },
-        {
-            "url": f"file://{input_dir}/decrypt.sh",
-            "path": "/inputs/decrypt.sh",
-            "type": "FILE"
-        },
-        {
-            "url": f"file://{input_dir}/make_uppercase.py",
-            "path": "/inputs/make_uppercase.py",
-            "type": "FILE"
-        }
-    ],
-    "outputs": [
-        {
-            "url": f"file://{tmp_dir.name}/hello-upper-decrypt.txt",
-            "path": "/outputs/hello-upper-decrypt.txt",
-            "type": "FILE"
-        }
-    ],
-    "executors": [
-        {
-            "image": "athitheyag/c4gh:1.0",
-            "command": ["bash", "/inputs/decrypt.sh"],
-            "env": {
-                "INPUT_LOC": "/inputs/hello.c4gh",
-                "OUTPUT_LOC": "/vol/A/inputs/hello.txt",
-                "SECRET": "/inputs/alice.sec"
+
+def get_uppercase_task_with_decryption_body(tmp_dir):
+    """Returns TES task body that makes the contents of a crypt4GH file uppercase."""
+    return {
+        "name": "Decrypt with secret key as environment variable",
+        "inputs": [
+            {
+                "url": f"file://{input_dir}/hello.c4gh",
+                "path": "/inputs/hello.c4gh",
+                "type": "FILE"
+            },
+            {
+                "url": f"file://{input_dir}/alice.sec",
+                "path": "/inputs/alice.sec",
+                "type": "FILE"
+            },
+            {
+                "url": f"file://{input_dir}/decrypt.sh",
+                "path": "/inputs/decrypt.sh",
+                "type": "FILE"
+            },
+            {
+                "url": f"file://{input_dir}/make_uppercase.py",
+                "path": "/inputs/make_uppercase.py",
+                "type": "FILE"
             }
-        },
-        {
-            "image": "python:3",
-            "command": [
-                "python3",
-                "/inputs/make_uppercase.py",
-                "/vol/A/inputs/hello.txt"
-            ],
-            "stdout": "/outputs/hello-upper-decrypt.txt"
-        }
-    ],
-    "volumes": [
-        "/vol/A/inputs"
-    ]
+        ],
+        "outputs": [
+            {
+                "url": f"file://{tmp_dir}/hello-upper-decrypt.txt",
+                "path": "/outputs/hello-upper-decrypt.txt",
+                "type": "FILE"
+            }
+        ],
+        "executors": [
+            {
+                "image": "athitheyag/c4gh:1.0",
+                "command": ["bash", "/inputs/decrypt.sh"],
+                "env": {
+                    "INPUT_LOC": "/inputs/hello.c4gh",
+                    "OUTPUT_LOC": "/vol/A/inputs/hello.txt",
+                    "SECRET": "/inputs/alice.sec"
+                }
+            },
+            {
+                "image": "python:3",
+                "command": [
+                    "python3",
+                    "/inputs/make_uppercase.py",
+                    "/vol/A/inputs/hello.txt"
+                ],
+                "stdout": "/outputs/hello-upper-decrypt.txt"
+            }
+        ],
+        "volumes": [
+            "/vol/A/inputs"
+        ]
 }
