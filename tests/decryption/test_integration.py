@@ -1,7 +1,9 @@
 """Integration tests for decrypt.py."""
 
+import os
 import pytest
 import shutil
+from unittest import mock
 
 from crypt4gh_middleware.decrypt import main
 from tests.utils import patch_cli, INPUT_TEXT, INPUT_DIR
@@ -9,7 +11,7 @@ from tests.utils import patch_cli, INPUT_TEXT, INPUT_DIR
 
 @pytest.fixture(name="secret_keys")
 def fixture_secret_keys(tmp_path):
-    """Returns temporary copies of encrypted files."""
+    """Returns temporary copies of secret keys."""
     encrypted_files = [INPUT_DIR/"alice.sec", INPUT_DIR/"bob.sec"]
     temp_files = [tmp_path/"alice.sec", tmp_path/"bob.sec"]
     for src, dest in zip(encrypted_files, temp_files):
@@ -17,7 +19,7 @@ def fixture_secret_keys(tmp_path):
     return temp_files
 
 
-def test_decryption(secret_keys, encrypted_files, tmp_path):
+def test_decryption(encrypted_files, secret_keys, tmp_path):
     """Test that files can be decrypted successfully."""
     with patch_cli(["decrypt.py", "--output-dir", str(tmp_path)]
                    + [str(f) for f in (encrypted_files + secret_keys)]):
@@ -27,16 +29,24 @@ def test_decryption(secret_keys, encrypted_files, tmp_path):
                 assert f.read() == INPUT_TEXT
 
 
-def test_default_dir():
+def test_default_dir(encrypted_files, secret_keys, tmp_path):
     """Test that $TMPDIR is used when no output dir is provided."""
+    with (patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files + secret_keys)]),
+            mock.patch.dict(os.environ, {"TMPDIR": str(tmp_path)})):
+        main()
+        for filename in encrypted_files:
+            with open(tmp_path/filename, encoding="utf-8") as f:
+                assert f.read() == INPUT_TEXT
 
 
 def test_no_args():
     """Test that an exception is thrown when no arguments are provided."""
+    with patch_cli(["decrypt.py"]), pytest.raises(SystemExit):
+        main()
 
 
 def test_no_sk_provided_single():
-    """Test that an exception is raised when no sk for a single file is provided."""
+    """Test that an exception is raised when no secret keys are provided."""
 
 
 def test_no_sk_provided_multiple():
