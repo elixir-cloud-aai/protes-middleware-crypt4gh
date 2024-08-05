@@ -45,8 +45,13 @@ def test_no_args():
         main()
 
 
-def test_no_sk_provided_single():
-    """Test that an exception is raised when no secret keys are provided."""
+def test_no_sk_provided_single(encrypted_files, capsys):
+    """Test that messages are error messages are printed when no secret keys are provided."""
+    with patch_cli(["decrypt.py"] + [str(f) for f in encrypted_files]):
+        main()
+        captured = capsys.readouterr()
+        assert captured.out == (f"Private key for {encrypted_files[0].name} not provided\n"
+                                f"Private key for {encrypted_files[1].name} not provided\n")
 
 
 def test_no_sk_provided_multiple():
