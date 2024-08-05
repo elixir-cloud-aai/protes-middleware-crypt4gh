@@ -12,11 +12,11 @@ from tests.utils import patch_cli, INPUT_TEXT, INPUT_DIR
 ])
 def test_decryption(keys, files, tmp_path):
     """Test that files can be decrypted successfully."""
-    patch_cli(["decrypt.py", "--output-dir", tmp_path] + [INPUT_DIR/f for f in files] + keys)
-    main()
-    for filename in files:
-        with open(tmp_path/filename, encoding="utf-8") as f:
-            assert f.read() == INPUT_TEXT
+    with patch_cli(["decrypt.py", "--output-dir", tmp_path] + [INPUT_DIR/f for f in files] + keys):
+        main()
+        for filename in files:
+            with open(tmp_path/filename, encoding="utf-8") as f:
+                assert f.read() == INPUT_TEXT
 
 
 def test_default_dir():
