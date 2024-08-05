@@ -1,9 +1,11 @@
 """ Utility functions for tests."""
 from functools import wraps
 import contextlib
+from pathlib import Path
 import signal
 from unittest import mock
 
+INPUT_DIR = Path(__file__).parents[1]/"inputs"
 INPUT_TEXT = "hello world from the input!"
 
 
