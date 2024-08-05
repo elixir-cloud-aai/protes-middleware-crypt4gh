@@ -1,7 +1,7 @@
 """Integration tests for decrypt.py."""
 
 import pytest
-
+from tests.utils import patch_cli, INPUT_TEXT
 
 @pytest.mark.parametrize("files", [
     ["alice.sec", "hello.c4gh"],
