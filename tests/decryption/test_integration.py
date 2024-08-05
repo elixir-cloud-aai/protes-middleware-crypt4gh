@@ -1,9 +1,10 @@
 """Integration tests for decrypt.py."""
 
 import os
-import pytest
 import shutil
 from unittest import mock
+
+import pytest
 
 from crypt4gh_middleware.decrypt import main
 from tests.utils import patch_cli, INPUT_TEXT, INPUT_DIR
@@ -45,20 +46,21 @@ def test_no_args():
         main()
 
 
-def test_no_sk_provided_single(encrypted_files, capsys):
-    """Test that messages are error messages are printed when no secret keys are provided."""
-    with patch_cli(["decrypt.py"] + [str(f) for f in encrypted_files]):
+@pytest.mark.parametrize("keys", [[], "secret_keys"])
+def test_no_sk_provided_single(encrypted_files, capsys, keys, request):
+    """Test that messages are error messages are printed when no secret keys and invalid secret keys
+     are provided.
+     """
+    # Fixture names passed to pytest.mark.parametrize are strings, so get value
+    if isinstance(keys, str):
+        keys = [request.getfixturevalue(keys)[1]]
+
+    with patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files + keys)]):
         main()
         captured = capsys.readouterr()
         assert captured.out == (f"Private key for {encrypted_files[0].name} not provided\n"
                                 f"Private key for {encrypted_files[1].name} not provided\n")
 
 
-def test_no_sk_provided_multiple():
-    """Test that an exception is raised when the sk is provided for one file but not another."""
-
-
 def test_files_removed():
     """Test that files are deleted when an exception occurs."""
-
-
