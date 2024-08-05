@@ -13,10 +13,9 @@ from crypt4gh_middleware.decrypt import (
     move_files,
     get_args
 )
-from tests.utils import patch_cli
+from tests.utils import patch_cli, INPUT_TEXT
 
 INPUT_DIR = Path(__file__).parents[2]/"inputs"
-INPUT_TEXT = "hello world from the input!"
 
 
 class TestGetPrivateKeys:

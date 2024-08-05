@@ -4,6 +4,8 @@ import contextlib
 import signal
 from unittest import mock
 
+INPUT_TEXT = "hello world from the input!"
+
 
 @contextlib.contextmanager
 def patch_cli(args):
