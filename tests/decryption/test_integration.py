@@ -1,20 +1,26 @@
 """Integration tests for decrypt.py."""
 
 import pytest
+import shutil
 
 from crypt4gh_middleware.decrypt import main
 from tests.utils import patch_cli, INPUT_TEXT, INPUT_DIR
 
 
-@pytest.mark.parametrize("keys,files", [
-    [["alice.sec"], ["hello.c4gh"]],
-    [["alice.sec", "bob.sec"], ["hello.c4gh", "hello2.c4gh"]]
+@pytest.fixture(name="secret_keys")
+def fixture_secret_keys(tmp_path):
+    keys = ["alice.sec", "bob.sec"]
+
+
+@pytest.mark.parametrize("keys", [
+    [["alice.sec"], ["hello.c4gh"]]
 ])
-def test_decryption(keys, files, tmp_path):
+def test_decryption(keys, encrypted_files, tmp_path):
     """Test that files can be decrypted successfully."""
-    with patch_cli(["decrypt.py", "--output-dir", tmp_path] + [INPUT_DIR/f for f in files] + keys):
+    with patch_cli(["decrypt.py", "--output-dir", tmp_path.as_posix()]
+                   + [f for f in encrypted_files] + keys):
         main()
-        for filename in files:
+        for filename in encrypted_files:
             with open(tmp_path/filename, encoding="utf-8") as f:
                 assert f.read() == INPUT_TEXT
 
