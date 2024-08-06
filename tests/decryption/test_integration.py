@@ -1,6 +1,7 @@
 """Integration tests for decrypt.py."""
 
 import os
+from pathlib import Path
 import shutil
 from unittest import mock
 
@@ -8,6 +9,10 @@ import pytest
 
 from crypt4gh_middleware.decrypt import main
 from tests.utils import INPUT_DIR, INPUT_TEXT, patch_cli
+from logging import getLogger
+
+logger = getLogger()
+logger.setLevel("DEBUG")
 
 
 @pytest.fixture(name="secret_keys")
@@ -39,7 +44,7 @@ def test_decryption(encrypted_files, string_paths, tmp_path):
     """Test that files are decrypted successfully."""
     with patch_cli(["decrypt.py", "--output-dir", str(tmp_path)] + string_paths):
         main()
-        assert files_decrypted_successfully(encrypted_files, tmp_path)
+        assert files_decrypted_successfully(encrypted_files=encrypted_files, tmp_path=tmp_path)
 
 
 def test_default_dir(encrypted_files, string_paths, tmp_path):
@@ -47,7 +52,16 @@ def test_default_dir(encrypted_files, string_paths, tmp_path):
     with (patch_cli(["decrypt.py"] + string_paths),
             mock.patch.dict(os.environ, {"TMPDIR": str(tmp_path)})):
         main()
-        assert files_decrypted_successfully(encrypted_files, tmp_path)
+        assert files_decrypted_successfully(encrypted_files=encrypted_files, tmp_path=tmp_path)
+
+
+def test_missing_tmpdir(encrypted_files, string_paths, monkeypatch):
+    """Test that ./tmpdir is used when no output dir is specified and $TMPDIR is not set."""
+    monkeypatch.delenv("TMPDIR", raising=False)
+    with (patch_cli(["decrypt.py"] + string_paths)):
+        main()
+        assert files_decrypted_successfully(encrypted_files=encrypted_files,
+                                            tmp_path=Path("tmpdir"))
 
 
 def test_no_args():
