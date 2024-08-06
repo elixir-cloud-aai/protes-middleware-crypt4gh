@@ -52,8 +52,10 @@ def test_default_dir(encrypted_files, string_paths, tmp_path):
 
 def test_no_args():
     """Test that an exception is thrown when no arguments are provided."""
-    with patch_cli(["decrypt.py"]), pytest.raises(SystemExit):
+    with patch_cli(["decrypt.py"]) as patched_cli, pytest.raises(SystemExit) as exc_info:
         main()
+        assert "usage:" in str(exc_info.value)
+        assert patched_cli.stderr.getvalue().startswith("usage:")
 
 
 @pytest.mark.parametrize("keys", [[], "secret_keys"])
