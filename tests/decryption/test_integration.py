@@ -56,19 +56,27 @@ def test_no_args():
 
 
 @pytest.mark.parametrize("keys", [[], "secret_keys"])
-def test_no_sk_provided_single(encrypted_files, capsys, keys, request):
-    """Test that messages are error messages are printed when no secret keys or invalid secret keys
+def test_no_sk_provided(encrypted_files, capsys, keys, request):
+    """Test that error messages are printed when no secret keys or invalid secret keys
     are provided.
     """
     # Fixture names passed to pytest.mark.parametrize are strings, so get value
     if isinstance(keys, str):
         keys = [request.getfixturevalue(keys)[1]]
 
-    with patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files + keys)]):
+    with patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files[:2] + keys)]):
         main()
         captured = capsys.readouterr()
         assert captured.out == (f"Private key for {encrypted_files[0].name} not provided\n"
                                 f"Private key for {encrypted_files[1].name} not provided\n")
+
+
+def test_one_sk_provided(encrypted_files, capsys, secret_keys):
+    """Test that error message is printed when only one valid secret key is provided."""
+    with patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files + [secret_keys[0]])]):
+        main()
+        captured = capsys.readouterr()
+        assert captured.out == f"Private key for {encrypted_files[2].name} not provided\n"
 
 
 def test_invalid_output_dir(encrypted_files):
