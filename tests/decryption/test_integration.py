@@ -72,7 +72,7 @@ def test_no_valid_sk_provided(encrypted_files, capsys, keys, request):
 
 
 def test_one_sk_provided(encrypted_files, capsys, secret_keys):
-    """Test that error message is printed when only one valid secret key is provided."""
+    """Test that appropriate error message is printed when only one valid secret key is provided."""
     with patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files + [secret_keys[0]])]):
         main()
         captured = capsys.readouterr()
@@ -88,7 +88,7 @@ def test_invalid_output_dir(string_paths):
 
 def test_files_removed(string_paths, tmp_path):
     """Test that no files are in the output directory when an exception occurs."""
-    with (patch_cli(["decrypt.py", "--output-dir", str(tmp_path), "bad_file"] + string_paths),
+    with (patch_cli(["decrypt.py", "--output-dir", str(tmp_path)] + string_paths + ["bad_file"]),
             pytest.raises(FileNotFoundError)):
         main()
         assert not any(file.exists() for file in tmp_path.iterdir())
