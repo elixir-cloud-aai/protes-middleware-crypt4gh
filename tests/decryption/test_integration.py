@@ -86,7 +86,7 @@ def test_invalid_output_dir(string_paths):
         main()
 
 
-def test_files_removed(string_paths, tmp_path):
+def test_no_files_in_output_dir_on_exception(string_paths, tmp_path):
     """Test that no files are in the output directory when an exception occurs."""
     with (patch_cli(["decrypt.py", "--output-dir", str(tmp_path)] + string_paths + ["bad_file"]),
             pytest.raises(FileNotFoundError)):
