@@ -88,6 +88,16 @@ def test_invalid_output_dir(string_paths):
         main()
 
 
+def test_output_dir_no_write_permission(string_paths, tmp_path):
+    """Test handling of output directory without write permissions."""
+    no_write_dir = tmp_path/"no_write"
+    no_write_dir.mkdir()
+    no_write_dir.chmod(0o555)
+    with (patch_cli(["decrypt.py", "--output-dir", str(no_write_dir)] + string_paths),
+            pytest.raises(PermissionError)):
+        main()
+
+
 def test_no_files_in_output_dir_on_exception(string_paths, tmp_path):
     """Test that no files are in the output directory when an exception occurs."""
     with (patch_cli(["decrypt.py", "--output-dir", str(tmp_path)] + string_paths + ["bad_file"]),
