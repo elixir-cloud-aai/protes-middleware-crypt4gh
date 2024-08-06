@@ -8,11 +8,11 @@ from crypt4gh.keys import get_private_key as get_sk_bytes, get_public_key as get
 import pytest
 
 from crypt4gh_middleware.decrypt import (
-    get_private_keys,
     decrypt_files,
+    get_args,
+    get_private_keys,
     move_files,
     remove_files,
-    get_args
 )
 from tests.utils import patch_cli
 
