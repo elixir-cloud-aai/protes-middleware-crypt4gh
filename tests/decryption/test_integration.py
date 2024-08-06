@@ -62,5 +62,17 @@ def test_no_sk_provided_single(encrypted_files, capsys, keys, request):
                                 f"Private key for {encrypted_files[1].name} not provided\n")
 
 
-def test_files_removed():
-    """Test that files are deleted when an exception occurs."""
+def test_invalid_output_dir(encrypted_files):
+    """Test that an exception occurs when an invalid output directory is provided."""
+    with (patch_cli(["decrypt.py", "--output-dir", "bad_dir"] + [str(f) for f in encrypted_files]),
+            pytest.raises(FileNotFoundError)):
+        main()
+
+
+def test_files_removed(encrypted_files, secret_keys, tmp_path):
+    """Test that no files are in the output directory when an exception occurs."""
+    with (patch_cli(["decrypt.py", "--output-dir", str(tmp_path), "bad_file"]
+                    + [str(f) for f in (encrypted_files + secret_keys)]),
+            pytest.raises(FileNotFoundError)):
+        main()
+        assert not any(file.exists() for file in tmp_path.iterdir())
