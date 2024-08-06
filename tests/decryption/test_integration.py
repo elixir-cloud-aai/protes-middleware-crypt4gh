@@ -9,10 +9,6 @@ import pytest
 
 from crypt4gh_middleware.decrypt import main
 from tests.utils import INPUT_DIR, INPUT_TEXT, patch_cli
-from logging import getLogger
-
-logger = getLogger()
-logger.setLevel("DEBUG")
 
 
 @pytest.fixture(name="secret_keys")
@@ -58,7 +54,7 @@ def test_default_dir(encrypted_files, string_paths, tmp_path):
 def test_missing_tmpdir(encrypted_files, string_paths, monkeypatch):
     """Test that ./tmpdir is used when no output dir is specified and $TMPDIR is not set."""
     monkeypatch.delenv("TMPDIR", raising=False)
-    with (patch_cli(["decrypt.py"] + string_paths)):
+    with patch_cli(["decrypt.py"] + string_paths):
         main()
         assert files_decrypted_successfully(encrypted_files=encrypted_files,
                                             tmp_path=Path("tmpdir"))
