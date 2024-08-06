@@ -22,7 +22,7 @@ def fixture_secret_keys(tmp_path):
 
 @pytest.fixture(name="string_paths")
 def fixture_string_paths(encrypted_files, secret_keys):
-    """String version of file paths for use in patch_cli."""
+    """Returns string version of file paths for use in patch_cli."""
     return [str(f) for f in (encrypted_files + secret_keys)]
 
 
@@ -36,7 +36,7 @@ def files_decrypted_successfully(encrypted_files, tmp_path):
 
 
 def test_decryption(encrypted_files, string_paths, tmp_path):
-    """Test that files can be decrypted successfully."""
+    """Test that files are decrypted successfully."""
     with patch_cli(["decrypt.py", "--output-dir", str(tmp_path)] + string_paths):
         main()
         assert files_decrypted_successfully(encrypted_files, tmp_path)
@@ -57,10 +57,11 @@ def test_no_args():
 
 
 @pytest.mark.parametrize("keys", [[], "secret_keys"])
-def test_no_sk_provided(encrypted_files, capsys, keys, request):
+def test_no_valid_sk_provided(encrypted_files, capsys, keys, request):
     """Test that error messages are printed when no keys or invalid secret keys are provided."""
     # Fixture names passed to pytest.mark.parametrize are strings, so get value
     if isinstance(keys, str):
+        # bob.pk was not used to encrypt hello.c4gh and hello2.c4gh
         keys = [request.getfixturevalue(keys)[1]]
 
     with patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files[:2] + keys)]):
