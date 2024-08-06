@@ -10,14 +10,6 @@ from crypt4gh_middleware.decrypt import main
 from tests.utils import INPUT_DIR, INPUT_TEXT, patch_cli
 
 
-def file_contents_are_valid(encrypted_files, tmp_path):
-    for filename in encrypted_files:
-        with open(tmp_path/filename, encoding="utf-8") as f:
-            if f.read() != INPUT_TEXT:
-                return False
-    return True
-
-
 @pytest.fixture(name="secret_keys")
 def fixture_secret_keys(tmp_path):
     """Returns temporary copies of secret keys."""
@@ -34,11 +26,19 @@ def fixture_string_paths(encrypted_files, secret_keys):
     return [str(f) for f in (encrypted_files + secret_keys)]
 
 
+def files_decrypted_successfully(encrypted_files, tmp_path):
+    for filename in encrypted_files:
+        with open(tmp_path/filename, encoding="utf-8") as f:
+            if f.read() != INPUT_TEXT:
+                return False
+    return True
+
+
 def test_decryption(encrypted_files, string_paths, tmp_path):
     """Test that files can be decrypted successfully."""
     with patch_cli(["decrypt.py", "--output-dir", str(tmp_path)] + string_paths):
         main()
-        assert file_contents_are_valid(encrypted_files, tmp_path)
+        assert files_decrypted_successfully(encrypted_files, tmp_path)
 
 
 def test_default_dir(encrypted_files, string_paths, tmp_path):
@@ -46,7 +46,7 @@ def test_default_dir(encrypted_files, string_paths, tmp_path):
     with (patch_cli(["decrypt.py"] + string_paths),
             mock.patch.dict(os.environ, {"TMPDIR": str(tmp_path)})):
         main()
-        assert file_contents_are_valid(encrypted_files, tmp_path)
+        assert files_decrypted_successfully(encrypted_files, tmp_path)
 
 
 def test_no_args():
@@ -59,7 +59,7 @@ def test_no_args():
 def test_no_sk_provided_single(encrypted_files, capsys, keys, request):
     """Test that messages are error messages are printed when no secret keys or invalid secret keys
     are provided.
-     """
+    """
     # Fixture names passed to pytest.mark.parametrize are strings, so get value
     if isinstance(keys, str):
         keys = [request.getfixturevalue(keys)[1]]
