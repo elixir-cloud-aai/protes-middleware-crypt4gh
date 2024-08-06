@@ -27,6 +27,7 @@ def fixture_string_paths(encrypted_files, secret_keys):
 
 
 def files_decrypted_successfully(encrypted_files, tmp_path):
+    """Check if encrypted files have been decrypted."""
     for filename in encrypted_files:
         with open(tmp_path/filename, encoding="utf-8") as f:
             if f.read() != INPUT_TEXT:
@@ -57,9 +58,7 @@ def test_no_args():
 
 @pytest.mark.parametrize("keys", [[], "secret_keys"])
 def test_no_sk_provided(encrypted_files, capsys, keys, request):
-    """Test that error messages are printed when no secret keys or invalid secret keys
-    are provided.
-    """
+    """Test that error messages are printed when no keys or invalid secret keys are provided."""
     # Fixture names passed to pytest.mark.parametrize are strings, so get value
     if isinstance(keys, str):
         keys = [request.getfixturevalue(keys)[1]]
@@ -79,9 +78,9 @@ def test_one_sk_provided(encrypted_files, capsys, secret_keys):
         assert captured.out == f"Private key for {encrypted_files[2].name} not provided\n"
 
 
-def test_invalid_output_dir(encrypted_files):
+def test_invalid_output_dir(string_paths):
     """Test that an exception occurs when an invalid output directory is provided."""
-    with (patch_cli(["decrypt.py", "--output-dir", "bad_dir"] + [str(f) for f in encrypted_files]),
+    with (patch_cli(["decrypt.py", "--output-dir", "bad_dir"] + string_paths),
             pytest.raises(FileNotFoundError)):
         main()
 
