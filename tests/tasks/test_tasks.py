@@ -9,9 +9,9 @@ import pytest
 import requests
 
 from task_bodies import (
-    get_uppercase_task_body,
     get_decryption_task_body,
-    get_uppercase_task_with_decryption_body
+    get_uppercase_task_body,
+    get_uppercase_task_with_decryption_body,
 )
 from tests.utils import timeout
 
