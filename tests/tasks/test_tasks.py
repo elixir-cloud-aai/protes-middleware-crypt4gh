@@ -1,16 +1,17 @@
 """Tests for I/O and decryption tasks"""
 
 import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from time import sleep
 
 import pytest
 import requests
 
 from task_bodies import (
-    output_dir,
-    uppercase_task_body,
-    decryption_task_body,
-    uppercase_task_with_decryption_body
+    get_decryption_task_body,
+    get_uppercase_task_body,
+    get_uppercase_task_with_decryption_body,
 )
 from tests.utils import timeout
 
@@ -20,17 +21,23 @@ WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
 INPUT_TEXT = "hello world from the input!"
 
 
-def wait_for_file_download(filename):
+def wait_for_file_download(filename, output_path):
     """Waits for file with given filename to download."""
-    while not (output_dir/filename).exists():
+    while not (output_path/filename).exists():
         sleep(1)
 
 
+@pytest.fixture(name="output_dir")
+def fixture_output_dir():
+    """Returns temporary directory to store task outputs."""
+    return Path(TemporaryDirectory().name)
+
+
 @pytest.fixture(name="task")
-def fixture_task(request):
+def fixture_task(request, output_dir):
     """Returns response received after creating task."""
     return requests.post(
-        url=f"{TES_URL}/tasks", headers=HEADERS, json=request.param
+        url=f"{TES_URL}/tasks", headers=HEADERS, json=request.param(output_dir)
     )
 
 
@@ -54,17 +61,16 @@ def fixture_final_task_info(task):
 
 
 @pytest.mark.parametrize("task,filename,expected_output", [
-    (uppercase_task_body, "hello-upper.txt", INPUT_TEXT.upper()),
-    (decryption_task_body, "hello-decrypted.txt", INPUT_TEXT),
-    (uppercase_task_with_decryption_body, "hello-upper-decrypt.txt", INPUT_TEXT.upper())
+    (get_uppercase_task_body, "hello-upper.txt", INPUT_TEXT.upper()),
+    (get_decryption_task_body, "hello-decrypted.txt", INPUT_TEXT),
+    (get_uppercase_task_with_decryption_body, "hello-upper-decrypt.txt", INPUT_TEXT.upper())
 ], indirect=["task"])
 @timeout(time_limit=10)
-def test_task(task, final_task_info, filename, expected_output):  # pylint: disable=unused-argument
+def test_task(task, final_task_info, filename, expected_output, output_dir):  # pylint: disable=unused-argument
     """Test tasks for successful completion and intended behavior."""
     assert final_task_info["state"] == "COMPLETE"
 
-    wait_for_file_download(filename)
-
+    wait_for_file_download(filename=filename, output_path=output_dir)
     with open(output_dir/filename, encoding="utf-8") as f:
         output = f.read()
         assert output == expected_output
