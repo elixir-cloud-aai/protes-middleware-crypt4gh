@@ -64,7 +64,7 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
                 logger.info(f"Decrypted {file_path} successfully")
             except ValueError as e:
                 if str(e) != "Not a CRYPT4GH formatted file":
-                    logger.error(f"Private key for {file_path.name} not provided")
+                    logger.critical(f"Private key for {file_path.name} not provided")
                 continue
 
 
