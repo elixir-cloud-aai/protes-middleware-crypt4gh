@@ -1,5 +1,6 @@
 """Integration tests for decrypt.py."""
 
+import logging
 import os
 from pathlib import Path
 import shutil
@@ -69,26 +70,26 @@ def test_no_args():
 
 
 @pytest.mark.parametrize("keys", [[], "secret_keys"])
-def test_no_valid_sk_provided(encrypted_files, capsys, keys, request):
+def test_no_valid_sk_provided(encrypted_files, caplog, keys, request):
     """Test that error messages are printed when no keys or invalid secret keys are provided."""
     # Fixture names passed to pytest.mark.parametrize are strings, so get value
     if isinstance(keys, str):
         # bob.pk was not used to encrypt hello.c4gh and hello2.c4gh
         keys = [request.getfixturevalue(keys)[1]]
 
-    with patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files[:2] + keys)]):
+    with (patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files[:2] + keys)]),
+          caplog.at_level(logging.CRITICAL)):
         main()
-        captured = capsys.readouterr()
-        assert captured.out == (f"Private key for {encrypted_files[0].name} not provided\n"
-                                f"Private key for {encrypted_files[1].name} not provided\n")
+        assert f"Private key for {encrypted_files[0].name} not provided" in caplog.text
+        assert f"Private key for {encrypted_files[1].name} not provided" in caplog.text
 
 
-def test_one_sk_provided(encrypted_files, capsys, secret_keys):
+def test_one_sk_provided(encrypted_files, caplog, secret_keys):
     """Test that appropriate error message is printed when only one valid secret key is provided."""
-    with patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files + [secret_keys[0]])]):
+    with (patch_cli(["decrypt.py"] + [str(f) for f in (encrypted_files + [secret_keys[0]])]),
+          caplog.at_level(logging.CRITICAL)):
         main()
-        captured = capsys.readouterr()
-        assert captured.out == f"Private key for {encrypted_files[2].name} not provided\n"
+        assert f"Private key for {encrypted_files[2].name} not provided" in caplog.text
 
 
 def test_invalid_output_dir(string_paths):
