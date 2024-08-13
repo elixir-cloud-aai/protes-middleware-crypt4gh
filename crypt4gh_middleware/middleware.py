@@ -45,7 +45,3 @@ class CryptMiddleware:
         self._add_decryption_executor()
 
         return self.request
-
-
-
-
