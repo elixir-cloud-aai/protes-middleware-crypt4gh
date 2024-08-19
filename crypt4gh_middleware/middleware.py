@@ -4,6 +4,9 @@ from pathlib import Path
 
 import flask
 
+class PathNotAllowedError(ValueError):
+    pass
+
 class CryptMiddleware:
     """Middleware class to handle Crypt4GH file inputs."""
 
@@ -52,7 +55,7 @@ class CryptMiddleware:
         """
         for volume in self.request.json["volumes"]:
             if volume.startswith("/vol/crypt"):
-                raise ValueError("/vol/crypt/ is not allowed in volumes.")
+                raise PathNotAllowedError("/vol/crypt/ is not allowed in volumes.")
 
     def _set_original_input_paths(self) -> None:
         """Retrieve and store the original input file paths.
@@ -62,7 +65,7 @@ class CryptMiddleware:
         """
         for input_body in self.request.json["inputs"]:
             if input_body["path"].startswith("/vol/crypt"):
-                raise ValueError("/vol/crypt/ is not allowed in input path.")
+                raise PathNotAllowedError("/vol/crypt/ is not allowed in input path.")
             self.original_input_paths.append(input_body["path"])
 
     def apply_middleware(self, request: flask.Request) -> flask.Request:
