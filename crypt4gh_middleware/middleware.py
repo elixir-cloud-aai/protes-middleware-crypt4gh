@@ -21,7 +21,7 @@ class CryptMiddleware:
                 "decrypt.py"
             ] + self.original_input_paths + [
                 "--output-dir",
-                self.output_dir.as_posix()
+                str(self.output_dir)
             ]
         }
         self.request.json["executors"].insert(0, executor)
@@ -31,7 +31,7 @@ class CryptMiddleware:
         for executor_body in self.request.json["executors"]:
             for i, path in enumerate(executor_body["command"]):
                 if path in self.original_input_paths:
-                    executor_body["command"][i] = (self.output_dir/path.split("/")[-1]).as_posix()
+                    executor_body["command"][i] = str(self.output_dir/Path(path).name)
 
     def _change_output_paths(self):
         """Change original output file paths to the output directory if the output path is
@@ -42,7 +42,7 @@ class CryptMiddleware:
         for output_body in self.request.json["outputs"]:
             path = output_body["path"]
             if path in self.original_input_paths:
-                output_body["path"] = (self.output_dir/path.split("/")[-1]).as_posix()
+                output_body["path"] = str(self.output_dir/Path(path).name)
 
     def _check_volumes(self):
         """Check volumes to ensure none start with /vol/crypt.
