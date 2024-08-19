@@ -12,6 +12,38 @@ class CryptMiddleware:
         self.original_input_paths = []
         self.output_dir = Path("/vol/crypt/")
 
+    def _add_decryption_executor(self):
+        """Add the decryption executor to the executor list."""
+        executor = {
+            "image": "athitheyag/crypt4gh:1.0",
+            "command": [
+                "python3",
+                "decrypt.py"
+            ] + self.original_input_paths + [
+                "--output-dir",
+                self.output_dir.as_posix()
+            ]
+        }
+        self.request.json["executors"].insert(0, executor)
+
+    def _change_executor_paths(self):
+        """Change original input file paths in executors to the output directory."""
+        for executor_body in self.request.json["executors"]:
+            for i, path in enumerate(executor_body["command"]):
+                if path in self.original_input_paths:
+                    executor_body["command"][i] = (self.output_dir/path.split("/")[-1]).as_posix()
+
+    def _change_output_paths(self):
+        """Change original output file paths to the output directory if the output path is
+        the same as an input path.
+
+        Accounts for case where input file is modified in place in a TES request.
+        """
+        for output_body in self.request.json["outputs"]:
+            path = output_body["path"]
+            if path in self.original_input_paths:
+                output_body["path"] = (self.output_dir/path.split("/")[-1]).as_posix()
+
     def _check_volumes(self):
         """Check volumes to ensure none start with /vol/crypt.
         
@@ -33,42 +65,6 @@ class CryptMiddleware:
                 raise ValueError("/vol/crypt/ is not allowed in input path.")
             self.original_input_paths.append(input_body["path"])
 
-    def _change_executor_paths(self):
-        """Change original input file paths in executors to the output directory."""
-        for executor_body in self.request.json["executors"]:
-            for i, path in enumerate(executor_body["command"]):
-                if path in self.original_input_paths:
-                    executor_body["command"][i] = (self.output_dir/path.split("/")[-1]).as_posix()
-
-    def _change_output_paths(self):
-        """Change original output file paths to the output directory if the output path is
-        the same as an input path.
-
-        Accounts for case where input file is modified in place in a TES request.
-        """
-        for output_body in self.request.json["outputs"]:
-            path = output_body["path"]
-            if path in self.original_input_paths:
-                output_body["path"] = (self.output_dir/path.split("/")[-1]).as_posix()
-
-    def _add_decryption_executor(self):
-        """Add the decryption executor to the executor list."""
-        executor = {
-            "image": "athitheyag/crypt4gh:1.0",
-            "command": [
-                "python3",
-                "decrypt.py"
-            ] + self.original_input_paths + [
-                "--output-dir",
-                self.output_dir.as_posix()
-            ]
-        }
-        self.request.json["executors"].insert(0, executor)
-
-    def set_output_directory(self, output_dir):
-        """Set the output directory for decrypt.py."""
-        self.output_dir = output_dir
-
     def apply_middleware(self, request: flask.Request):
         """Apply middleware to request."""
         self.request = request
@@ -79,3 +75,7 @@ class CryptMiddleware:
         self._add_decryption_executor()
 
         return self.request
+
+    def set_output_directory(self, output_dir):
+        """Set the output directory for decrypt.py."""
+        self.output_dir = output_dir
