@@ -53,6 +53,7 @@ class CryptMiddleware:
     def apply_middleware(self, request: flask.Request):
         self.request = request
         self._set_original_input_paths()
+        self._check_volumes()
         self._change_executor_paths()
         self._change_output_paths()
         self._add_decryption_executor()
