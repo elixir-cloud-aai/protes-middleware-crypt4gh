@@ -12,7 +12,7 @@ class CryptMiddleware:
         self.original_input_paths = []
         self.output_dir = Path("/vol/crypt/")
 
-    def _add_decryption_executor(self):
+    def _add_decryption_executor(self) -> None:
         """Add the decryption executor to the executor list."""
         executor = {
             "image": "athitheyag/crypt4gh:1.0",
@@ -26,14 +26,14 @@ class CryptMiddleware:
         }
         self.request.json["executors"].insert(0, executor)
 
-    def _change_executor_paths(self):
+    def _change_executor_paths(self) -> None:
         """Change original input file paths in executors to the output directory."""
         for executor_body in self.request.json["executors"]:
             for i, path in enumerate(executor_body["command"]):
                 if path in self.original_input_paths:
                     executor_body["command"][i] = str(self.output_dir/Path(path).name)
 
-    def _change_output_paths(self):
+    def _change_output_paths(self) -> None:
         """Change original output file paths to the output directory if the output path is
         the same as an input path.
 
@@ -44,7 +44,7 @@ class CryptMiddleware:
             if path in self.original_input_paths:
                 output_body["path"] = str(self.output_dir/Path(path).name)
 
-    def _check_volumes(self):
+    def _check_volumes(self) -> None:
         """Check volumes to ensure none start with /vol/crypt.
         
         Raises:
@@ -54,7 +54,7 @@ class CryptMiddleware:
             if volume.startswith("/vol/crypt"):
                 raise ValueError("/vol/crypt/ is not allowed in volumes.")
 
-    def _set_original_input_paths(self):
+    def _set_original_input_paths(self) -> None:
         """Retrieve and store the original input file paths.
         
         Raises:
@@ -65,7 +65,7 @@ class CryptMiddleware:
                 raise ValueError("/vol/crypt/ is not allowed in input path.")
             self.original_input_paths.append(input_body["path"])
 
-    def apply_middleware(self, request: flask.Request):
+    def apply_middleware(self, request: flask.Request) -> flask.Request:
         """Apply middleware to request."""
         self.request = request
         self._set_original_input_paths()
