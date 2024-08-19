@@ -4,7 +4,6 @@ from pathlib import Path
 
 import flask
 
-
 class CryptMiddleware:
 
     def __init__(self):
@@ -22,8 +21,14 @@ class CryptMiddleware:
         for executor_body in self.request.json["executors"]:
             for i, path in enumerate(executor_body["command"]):
                 if path in self.original_input_paths:
-                    executor_body["command"][i] = self.output_dir / path.split("/")[-1]
-
+                    executor_body["command"][i] = (self.output_dir/path.split("/")[-1]).as_posix()
+    
+    def _change_output_paths(self):
+        for output_body in self.request.json["outputs"]:
+            path = output_body["path"]
+            if path in self.original_input_paths:
+                output_body["path"] = (self.output_dir/path.split("/")[-1]).as_posix()
+                
     def _add_decryption_executor(self):
         """Add the decryption executor to the executor list."""
         executor = {
@@ -33,7 +38,7 @@ class CryptMiddleware:
                 "decrypt.py"
             ] + self.original_input_paths + [
                 "--output-dir",
-                self.output_dir
+                self.output_dir.as_posix()
             ]
         }
         self.request.json["executors"].insert(0, executor)
@@ -42,6 +47,7 @@ class CryptMiddleware:
         self.request = request
         self._set_original_input_paths()
         self._change_executor_paths()
+        self._change_output_paths()
         self._add_decryption_executor()
 
         return self.request
