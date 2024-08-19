@@ -5,6 +5,7 @@ from pathlib import Path
 import flask
 
 class CryptMiddleware:
+    """Middleware class to handle Crypt4GH file inputs."""
 
     def __init__(self):
         self.request = None
@@ -47,7 +48,7 @@ class CryptMiddleware:
             path = output_body["path"]
             if path in self.original_input_paths:
                 output_body["path"] = (self.output_dir/path.split("/")[-1]).as_posix()
-     
+
     def _add_decryption_executor(self):
         """Add the decryption executor to the executor list."""
         executor = {
@@ -61,7 +62,7 @@ class CryptMiddleware:
             ]
         }
         self.request.json["executors"].insert(0, executor)
-    
+
     def set_output_directory(self, output_dir):
         """Set the output directory for decrypt.py."""
         self.output_dir = output_dir
