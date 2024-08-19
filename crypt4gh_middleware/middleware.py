@@ -75,7 +75,3 @@ class CryptMiddleware:
         self._add_decryption_executor()
 
         return self.request
-
-    def set_output_directory(self, output_dir):
-        """Set the output directory for decrypt.py."""
-        self.output_dir = output_dir
