@@ -10,32 +10,44 @@ class CryptMiddleware:
         self.request = None
         self.original_input_paths = []
         self.output_dir = Path("/vol/crypt/")
-        
+
     def _check_volumes(self):
+        """Check volumes to ensure none start with /vol/crypt.
+        
+        Raises:
+            ValueError if volumes start with /vol/crypt.
+        """
         for volume in self.request.json["volumes"]:
-            if volume.startswith("/vol/crypt/"):
+            if volume.startswith("/vol/crypt"):
                 raise ValueError("/vol/crypt/ is not allowed in volumes.")
 
     def _set_original_input_paths(self):
-        """Retrieve the input file paths."""
+        """Retrieve the input file paths.
+        
+        Raises:
+            ValueError if any path starts with /vol/crypt.
+        """
         for input_body in self.request.json["inputs"]:
-            if input_body["path"].startswith("/vol/crypt/"):
+            if input_body["path"].startswith("/vol/crypt"):
                 raise ValueError("/vol/crypt/ is not allowed in input path.")
             self.original_input_paths.append(input_body["path"])
 
     def _change_executor_paths(self):
-        """Change input file paths in provided executors."""
+        """Change original input file paths in executors to the output directory."""
         for executor_body in self.request.json["executors"]:
             for i, path in enumerate(executor_body["command"]):
                 if path in self.original_input_paths:
                     executor_body["command"][i] = (self.output_dir/path.split("/")[-1]).as_posix()
-    
+
     def _change_output_paths(self):
+        """Change original output file paths to the output directory if the output path is
+        the same as an input path.
+        """
         for output_body in self.request.json["outputs"]:
             path = output_body["path"]
             if path in self.original_input_paths:
                 output_body["path"] = (self.output_dir/path.split("/")[-1]).as_posix()
-                
+     
     def _add_decryption_executor(self):
         """Add the decryption executor to the executor list."""
         executor = {
@@ -49,8 +61,13 @@ class CryptMiddleware:
             ]
         }
         self.request.json["executors"].insert(0, executor)
+    
+    def set_output_directory(self, output_dir):
+        """Set the output directory for decrypt.py."""
+        self.output_dir = output_dir
 
     def apply_middleware(self, request: flask.Request):
+        """Apply middleware to request."""
         self.request = request
         self._set_original_input_paths()
         self._check_volumes()
