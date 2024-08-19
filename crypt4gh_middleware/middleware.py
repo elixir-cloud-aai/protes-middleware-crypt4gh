@@ -43,6 +43,8 @@ class CryptMiddleware:
     def _change_output_paths(self):
         """Change original output file paths to the output directory if the output path is
         the same as an input path.
+
+        Accounts for case where input file is modified in place in a TES request.
         """
         for output_body in self.request.json["outputs"]:
             path = output_body["path"]
