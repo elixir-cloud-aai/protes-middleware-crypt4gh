@@ -6,7 +6,6 @@ import flask
 
 class PathNotAllowedError(ValueError):
     """Error raised when a path is not allowed."""
-    pass
 
 class CryptMiddleware:
     """Middleware class to handle Crypt4GH file inputs."""
