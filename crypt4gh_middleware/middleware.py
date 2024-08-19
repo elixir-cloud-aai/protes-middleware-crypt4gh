@@ -55,7 +55,7 @@ class CryptMiddleware:
                 raise ValueError("/vol/crypt/ is not allowed in volumes.")
 
     def _set_original_input_paths(self):
-        """Retrieve the input file paths.
+        """Retrieve and store the original input file paths.
         
         Raises:
             ValueError if any path starts with /vol/crypt.
