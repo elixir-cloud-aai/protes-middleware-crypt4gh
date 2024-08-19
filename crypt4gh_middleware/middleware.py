@@ -5,6 +5,7 @@ from pathlib import Path
 import flask
 
 class PathNotAllowedError(ValueError):
+    """Error raised when a path is not allowed."""
     pass
 
 class CryptMiddleware:
