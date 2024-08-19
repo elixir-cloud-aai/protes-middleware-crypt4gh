@@ -10,10 +10,17 @@ class CryptMiddleware:
         self.request = None
         self.original_input_paths = []
         self.output_dir = Path("/vol/crypt/")
+        
+    def _check_volumes(self):
+        for volume in self.request.json["volumes"]:
+            if volume.startswith("/vol/crypt/"):
+                raise ValueError("/vol/crypt/ is not allowed in volumes.")
 
     def _set_original_input_paths(self):
         """Retrieve the input file paths."""
         for input_body in self.request.json["inputs"]:
+            if input_body["path"].startswith("/vol/crypt/"):
+                raise ValueError("/vol/crypt/ is not allowed in input path.")
             self.original_input_paths.append(input_body["path"])
 
     def _change_executor_paths(self):
