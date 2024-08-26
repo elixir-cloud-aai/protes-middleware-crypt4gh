@@ -31,12 +31,21 @@ jobs:
     runs-on: ubuntu-latest
     services:
       funnel:
-        image: athitheyag/funnel:test
+        image: athitheyag/funnel
         ports:
           - 8000:8000
+      minio:
+        image: minio/minio:edge-cicd
+        ports:
+          - 9000:9000
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Upload files to miniIO
+        run: |
+          for file in inputs/*; do
+            curl http://localhost:9000/data/$(basename $file) --upload-file $file
+          done
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
