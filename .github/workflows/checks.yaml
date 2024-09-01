@@ -58,7 +58,7 @@ jobs:
       - name: Upload input files
         run: |
             for file in inputs/*; do
-              ./mc put $file minio/inputs/$(basename $file)
+              curl http://localhost:9000/inputs/$(basename $file) --upload-file $file
             done
       - name: Verify Buckets
         run: ./mc tree --files minio/inputs
