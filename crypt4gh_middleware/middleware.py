@@ -36,23 +36,23 @@ class CryptMiddleware:
                     executor_body["command"][i] = str(Path("/vol/crypt")/Path(path).name)
         return request
 
-    def _change_output_paths(self, request: flask.Request) -> flask.Request:
-        """Change original output file paths to the output directory if the output path is
-        the same as an input path.
+    def _check_output_paths(self, request: flask.Request) -> None:
+        """Check if an input path is present in the output paths. Inplace
+        modifications are not allowed.
 
-        Accounts for case where input file is modified in place in a TES request.
+        Raises:
+            PathNotAllowedError if volumes start with /vol/crypt.
         """
         for output_body in request.json["outputs"]:
             path = output_body["path"]
             if path in self.original_input_paths:
-                output_body["path"] = str(Path("/vol/crypt")/Path(path).name)
-        return request
+                raise PathNotAllowedError(f"{path} is being modified inplace.")
 
     def _check_volumes(self, request: flask.Request) -> None:
         """Check volumes to ensure none start with /vol/crypt.
         
         Raises:
-            ValueError if volumes start with /vol/crypt.
+            PathNotAllowedError if volumes start with /vol/crypt.
         """
         for volume in request.json["volumes"]:
             if volume.startswith("/vol/crypt"):
@@ -62,7 +62,7 @@ class CryptMiddleware:
         """Retrieve and store the original input file paths.
         
         Raises:
-            ValueError if any path starts with /vol/crypt.
+            PathNotAllowedError if any path starts with /vol/crypt.
         """
         for input_body in request.json["inputs"]:
             if input_body["path"].startswith("/vol/crypt"):
@@ -73,7 +73,7 @@ class CryptMiddleware:
         """Apply middleware to request."""
         self._set_original_input_paths(request)
         self._check_volumes(request)
+        self._check_output_paths(request)
         request = self._change_executor_paths(request)
-        request = self._change_output_paths(request)
         request = self._add_decryption_executor(request)
         return request
