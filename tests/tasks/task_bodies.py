@@ -1,10 +1,6 @@
 """TES task request bodies used by tests"""
 
-from pathlib import Path
-
-DIR = Path(__file__).parents[2]
-input_dir = DIR / "inputs"
-
+from tests.utils import INPUT_DIR
 
 def get_uppercase_task_body(tmp_dir):
     """Returns TES task body that makes the contents of a file uppercase."""
@@ -12,12 +8,12 @@ def get_uppercase_task_body(tmp_dir):
         "name": "Hello world",
         "inputs": [
             {
-                "url": f"file://{input_dir}/hello.txt",
+                "url": f"file://{INPUT_DIR}/hello.txt",
                 "path": "/inputs/hello.txt",
                 "type": "FILE"
             },
             {
-                "url": f"file://{input_dir}/make_uppercase.py",
+                "url": f"file://{INPUT_DIR}/make_uppercase.py",
                 "path": "/inputs/make_uppercase.py",
                 "type": "FILE"
             }
@@ -49,17 +45,17 @@ def get_decryption_task_body(tmp_dir):
         "name": "Decrypt with secret key as environment variable",
         "inputs": [
             {
-                "url": f"file://{input_dir}/hello.c4gh",
+                "url": f"file://{INPUT_DIR}/hello.c4gh",
                 "path": "/inputs/hello.c4gh",
                 "type": "FILE"
             },
             {
-                "url": f"file://{input_dir}/alice.sec",
+                "url": f"file://{INPUT_DIR}/alice.sec",
                 "path": "/inputs/alice.sec",
                 "type": "FILE"
             },
             {
-                "url": f"file://{input_dir}/decrypt.sh",
+                "url": f"file://{INPUT_DIR}/decrypt.sh",
                 "path": "/inputs/decrypt.sh",
                 "type": "FILE"
             }
@@ -91,22 +87,22 @@ def get_uppercase_task_with_decryption_body(tmp_dir):
         "name": "Decrypt with secret key as environment variable",
         "inputs": [
             {
-                "url": f"file://{input_dir}/hello.c4gh",
+                "url": f"file://{INPUT_DIR}/hello.c4gh",
                 "path": "/inputs/hello.c4gh",
                 "type": "FILE"
             },
             {
-                "url": f"file://{input_dir}/alice.sec",
+                "url": f"file://{INPUT_DIR}/alice.sec",
                 "path": "/inputs/alice.sec",
                 "type": "FILE"
             },
             {
-                "url": f"file://{input_dir}/decrypt.sh",
+                "url": f"file://{INPUT_DIR}/decrypt.sh",
                 "path": "/inputs/decrypt.sh",
                 "type": "FILE"
             },
             {
-                "url": f"file://{input_dir}/make_uppercase.py",
+                "url": f"file://{INPUT_DIR}/make_uppercase.py",
                 "path": "/inputs/make_uppercase.py",
                 "type": "FILE"
             }

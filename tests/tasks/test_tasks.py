@@ -13,12 +13,11 @@ from task_bodies import (
     get_uppercase_task_body,
     get_uppercase_task_with_decryption_body,
 )
-from tests.utils import timeout
+from tests.utils import INPUT_TEXT, timeout
 
 TES_URL = "http://localhost:8090/ga4gh/tes/v1"
 HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
-INPUT_TEXT = "hello world from the input!"
 
 
 def wait_for_file_download(filename, output_path):
