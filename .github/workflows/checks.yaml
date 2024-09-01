@@ -60,8 +60,6 @@ jobs:
             for file in inputs/*; do
               curl http://localhost:9000/inputs/$(basename $file) --upload-file $file
             done
-      - name: Verify Buckets
-        run: ./mc tree --files minio/inputs
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
