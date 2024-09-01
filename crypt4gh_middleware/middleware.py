@@ -1,5 +1,4 @@
 """Crypt4GH middleware."""
-from functools import wraps
 from pathlib import Path
 
 import flask
