@@ -1,11 +1,16 @@
 """Crypt4GH middleware."""
-
+from functools import wraps
 from pathlib import Path
 
 import flask
 
-class PathNotAllowedError(ValueError):
-    """Error raised when a path is not allowed."""
+# mypy: disable-error-code="index"
+
+class PathNotAllowedException(ValueError):
+    """Raised when a path is not allowed."""
+
+class EmptyPayloadException(ValueError):
+    """Raised when request has no JSON payload."""
 
 class CryptMiddleware:
     """Middleware class to handle Crypt4GH file inputs."""
@@ -46,7 +51,7 @@ class CryptMiddleware:
         for output_body in request.json["outputs"]:
             path = output_body["path"]
             if path in self.original_input_paths:
-                raise PathNotAllowedError(f"{path} is being modified inplace.")
+                raise PathNotAllowedException(f"{path} is being modified inplace.")
 
     def _check_volumes(self, request: flask.Request) -> None:
         """Check volumes to ensure none start with /vol/crypt.
@@ -56,7 +61,7 @@ class CryptMiddleware:
         """
         for volume in request.json["volumes"]:
             if volume.startswith("/vol/crypt"):
-                raise PathNotAllowedError("/vol/crypt is not allowed in volumes.")
+                raise PathNotAllowedException("/vol/crypt is not allowed in volumes.")
 
     def _set_original_input_paths(self, request: flask.Request) -> None:
         """Retrieve and store the original input file paths.
@@ -66,11 +71,13 @@ class CryptMiddleware:
         """
         for input_body in request.json["inputs"]:
             if input_body["path"].startswith("/vol/crypt"):
-                raise PathNotAllowedError("/vol/crypt/ is not allowed in input path.")
+                raise PathNotAllowedException("/vol/crypt/ is not allowed in input path.")
             self.original_input_paths.append(input_body["path"])
 
     def apply_middleware(self, request: flask.Request) -> flask.Request:
         """Apply middleware to request."""
+        if not request.json:
+            raise EmptyPayloadException("Request JSON has no payload.")
         self._set_original_input_paths(request)
         self._check_volumes(request)
         self._check_output_paths(request)
