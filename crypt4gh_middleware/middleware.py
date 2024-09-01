@@ -68,7 +68,7 @@ class CryptMiddleware:
         """Retrieve and store the original input file paths.
         
         Raises:
-            PathNotAllowedError if any path starts with /vol/crypt.
+            PathNotAllowedError if any path starts with /vol/crypt/.
         """
         for input_body in request.json["inputs"]:
             if input_body["path"].startswith("/vol/crypt/"):
