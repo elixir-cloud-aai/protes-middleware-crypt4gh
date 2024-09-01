@@ -14,7 +14,7 @@ from task_bodies import (
 )
 from tests.utils import INPUT_TEXT, S3_BUCKET_ENDPOINT, timeout
 
-TES_URL = "http://host.docker.internal:8000/v1"
+TES_URL = "http://localhost:8000/v1"
 HEADERS = {"accept": "application/json", "Content-Type": "application/json"}
 WAIT_STATUSES = ("UNKNOWN", "INITIALIZING", "RUNNING", "QUEUED")
 
