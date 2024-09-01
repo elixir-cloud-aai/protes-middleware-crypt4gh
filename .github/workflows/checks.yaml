@@ -31,21 +31,37 @@ jobs:
     runs-on: ubuntu-latest
     services:
       funnel:
-        image: athitheyag/funnel
+        image: athitheyag/funnel:test
         ports:
           - 8000:8000
       minio:
         image: minio/minio:edge-cicd
         ports:
           - 9000:9000
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
     steps:
+      - name: Fetch mc client
+        run: curl -o ./mc -# https://dl.min.io/client/mc/release/linux-amd64/mc && chmod +x ./mc
+      - name: Create input and output buckets
+        run: | 
+          ./mc alias set minio http://localhost:9000 minioadmin minioadmin \
+          && ./mc mb minio/inputs \
+          && ./mc mb minio/outputs
+      - name: Set bucket permissions to public
+        run: |
+          ./mc anonymous set public minio/inputs \
+          && ./mc anonymous set public minio/outputs
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Upload files to miniIO
+      - name: Upload input files
         run: |
-          for file in inputs/*; do
-            curl http://localhost:9000/data/$(basename $file) --upload-file $file
-          done
+            for file in inputs/*; do
+              ./mc put $file minio/inputs/$(basename $file)
+            done
+      - name: Verify Buckets
+        run: ./mc tree --files minio/inputs
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -55,4 +71,4 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Run tests
-        run: poetry run pytest tests
+        run: poetry run pytest tests/tasks
