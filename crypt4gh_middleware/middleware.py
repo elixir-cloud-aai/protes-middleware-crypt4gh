@@ -32,6 +32,18 @@ class CryptMiddleware:
         request.json["executors"].insert(0, executor)
         return request
 
+    def _add_volume(self, request: flask.Request) -> flask.Request:
+        """Check volumes to ensure none start with /vol/crypt/ and add /vol/crypt/.
+
+        Raises:
+            PathNotAllowedError if volumes start with /vol/crypt/.
+        """
+        for volume in request.json["volumes"]:
+            if volume.startswith("/vol/crypt/"):
+                raise PathNotAllowedException("/vol/crypt/ is not allowed in volumes.")
+        request.json["volumes"].append("/vol/crypt/")
+        return request
+
     def _change_executor_paths(self, request: flask.Request) -> flask.Request:
         """Change original input file paths in executors to the output directory."""
         for executor_body in request.json["executors"]:
@@ -45,22 +57,12 @@ class CryptMiddleware:
         modifications are not allowed.
 
         Raises:
-            PathNotAllowedError if volumes start with /vol/crypt.
+            PathNotAllowedError if input path is present in output paths.
         """
         for output_body in request.json["outputs"]:
             path = output_body["path"]
             if path in self.original_input_paths:
                 raise PathNotAllowedException(f"{path} is being modified inplace.")
-
-    def _check_volumes(self, request: flask.Request) -> None:
-        """Check volumes to ensure none start with /vol/crypt.
-        
-        Raises:
-            PathNotAllowedError if volumes start with /vol/crypt.
-        """
-        for volume in request.json["volumes"]:
-            if volume.startswith("/vol/crypt"):
-                raise PathNotAllowedException("/vol/crypt is not allowed in volumes.")
 
     def _set_original_input_paths(self, request: flask.Request) -> None:
         """Retrieve and store the original input file paths.
@@ -69,7 +71,7 @@ class CryptMiddleware:
             PathNotAllowedError if any path starts with /vol/crypt.
         """
         for input_body in request.json["inputs"]:
-            if input_body["path"].startswith("/vol/crypt"):
+            if input_body["path"].startswith("/vol/crypt/"):
                 raise PathNotAllowedException("/vol/crypt/ is not allowed in input path.")
             self.original_input_paths.append(input_body["path"])
 
@@ -78,8 +80,8 @@ class CryptMiddleware:
         if not request.json:
             raise EmptyPayloadException("Request JSON has no payload.")
         self._set_original_input_paths(request)
-        self._check_volumes(request)
         self._check_output_paths(request)
         request = self._change_executor_paths(request)
+        request = self._add_volume(request)
         request = self._add_decryption_executor(request)
         return request
