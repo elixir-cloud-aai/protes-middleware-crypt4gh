@@ -3,9 +3,26 @@
 [![chat][badge-chat]][badge-url-chat]
 
 ## Synopsis
-This middleware enables the use of [Crypt4GH][crypt4gh] files as inputs for tasks that are run in [TES][tes]
-implementations (e.g., [funnel][funnel], [TESK][tesk]).
+This proof-of-concept middleware enables the use of [Crypt4GH][crypt4gh] files as inputs for tasks that are 
+run in [TES][tes] implementations (e.g., [funnel][funnel], [TESK][tesk]).
+
 ## Description
+Currently, there are no implementations of TES that natively support the use of files encrypted with Crypt4GH.
+This middleware supports the use of Crypt4GH files by prepending the list of executors in a TES request with a
+decryption executor. This decryption executor decrypts the contents of any Crypt4GH files and places them in a volume
+so that subsequent executors can work on the decrypted contents.
+
+### Implementation Details
+The middleware alters the initial TES request such that a decryption executor and a new volume (`vol/crypt/`)are added 
+to the request. The decryption executor uses `decrypt.py` to move *all* the input files, even those that are not 
+encrypted, into `/vol/crypt/`. If a Crypt4GH file is detected, it is decrypted using a provided secret key and then
+moved into `/vol/crypt/`.
+
+![request-overview][request]
+
+### Important Considerations
+
+
 
 ## Installation
 
@@ -51,5 +68,6 @@ the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute].
 [funnel]: https://ohsu-comp-bio.github.io/funnel/
 [ga4gh]: https://ga4gh.org/
 [license]: LICENSE
+[request]: <images/request.png>
 [tes]: https://github.com/ga4gh/task-execution-schemas
 [tesk]: https://github.com/elixir-cloud-aai/TESK
