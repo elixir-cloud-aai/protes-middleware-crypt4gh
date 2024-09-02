@@ -19,7 +19,7 @@ The middleware alters the initial TES request such that a decryption executor an
 to the request. Since the decryption executor places all input files in `/vol/crypt/` all input paths in subsequent
 executors are altered to `/vol/crypt/{filename}`.
 
-<img alt="request-diagram" src="images/request.png" height="600">
+<img alt="request-diagram" src="images/request.png" height="400">
 
 ### Decryption
 The functionality of the decryption executor lies in [`decrypt.py`][decrypt]. This script moves all input files to a
