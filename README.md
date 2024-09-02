@@ -13,12 +13,20 @@ decryption executor. This decryption executor decrypts the contents of any Crypt
 so that subsequent executors can work on the decrypted contents.
 
 ### Implementation Details
-The middleware alters the initial TES request such that a decryption executor and a new volume (`vol/crypt/`)are added 
-to the request. The decryption executor uses `decrypt.py` to move *all* the input files, even those that are not 
-encrypted, into `/vol/crypt/`. If a Crypt4GH file is detected, it is decrypted using a provided secret key and then
-moved into `/vol/crypt/`.
+#### Middleware
+The middleware alters the initial TES request such that a decryption executor and a new volume (`/vol/crypt/`)are added 
+to the request. Since the decryption executor places all input files in `/vol/crypt/` all input paths in subsequent
+executors are altered to `/vol/crypt/{filename}`.
 
 ![request-overview][request]
+
+#### Decryption
+The functionality of the decryption executor lies in [`decrypt.py`][decrypt]. This script moves all input files to a
+specified output directory (in this case, `/vol/crypt/`). If a Crypt4GH file is detected and the secret key used to
+encrypt it is provided, the executor decrypts the contents of the Crypt4GH file and places it in `/vol/crypt`.
+Subsequent executors then refer to the files in `/vol/crypt/`, not their original locations.
+
+![workflow-overview][workflow]
 
 ### Important Considerations
 
@@ -62,6 +70,7 @@ the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute].
 [badge-url-license]: <http://www.apache.org/licenses/LICENSE-2.0>
 [badge-url-chat]: https://elixir-cloud.slack.com/archives/C04RLFJNF7U
 [crypt4gh]: https://www.ga4gh.org/news_item/crypt4gh-a-secure-method-for-sharing-human-genetic-data/
+[decrypt]: https://github.com/elixir-cloud-aai/protes-middleware-crypt4gh/blob/main/README.md
 [elixir]: https://elixir-europe.org/
 [elixir-cloud-aai]: https://elixir-cloud.dcc.sib.swiss/
 [elixir-compute]: https://elixir-europe.org/platforms/compute
@@ -71,3 +80,4 @@ the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute].
 [request]: <images/request.png>
 [tes]: https://github.com/ga4gh/task-execution-schemas
 [tesk]: https://github.com/elixir-cloud-aai/TESK
+[workflow]: <images/workflow.png>
