@@ -18,7 +18,7 @@ The middleware alters the initial TES request such that a decryption executor an
 to the request. Since the decryption executor places all input files in `/vol/crypt/` all input paths in subsequent
 executors are altered to `/vol/crypt/{filename}`.
 
-![request-overview][request]
+![request-overview][request | width=300]
 
 ### Decryption
 The functionality of the decryption executor lies in [`decrypt.py`][decrypt]. This script moves all input files to a
@@ -26,7 +26,7 @@ specified output directory (in this case, `/vol/crypt/`). If a Crypt4GH file is 
 encrypt it is provided, the executor decrypts the contents of the Crypt4GH file and places it in `/vol/crypt`.
 Subsequent executors then refer to the files in `/vol/crypt/`, not their original locations.
 
-![workflow-overview][workflow]
+![workflow-overview][workflow | width=300]
 
 ## Important Considerations
 
