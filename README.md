@@ -12,15 +12,15 @@ This middleware supports the use of Crypt4GH files by prepending the list of exe
 decryption executor. This decryption executor decrypts the contents of any Crypt4GH files and places them in a volume
 so that subsequent executors can work on the decrypted contents.
 
-### Implementation Details
-#### Middleware
+## Implementation Details
+### Middleware
 The middleware alters the initial TES request such that a decryption executor and a new volume (`/vol/crypt/`)are added 
 to the request. Since the decryption executor places all input files in `/vol/crypt/` all input paths in subsequent
 executors are altered to `/vol/crypt/{filename}`.
 
 ![request-overview][request]
 
-#### Decryption
+### Decryption
 The functionality of the decryption executor lies in [`decrypt.py`][decrypt]. This script moves all input files to a
 specified output directory (in this case, `/vol/crypt/`). If a Crypt4GH file is detected and the secret key used to
 encrypt it is provided, the executor decrypts the contents of the Crypt4GH file and places it in `/vol/crypt`.
@@ -28,7 +28,7 @@ Subsequent executors then refer to the files in `/vol/crypt/`, not their origina
 
 ![workflow-overview][workflow]
 
-### Important Considerations
+## Important Considerations
 
 
 
