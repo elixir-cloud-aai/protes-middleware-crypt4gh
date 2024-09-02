@@ -80,7 +80,7 @@ the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute].
 [badge-url-chat]: https://elixir-cloud.slack.com/archives/C04RLFJNF7U
 [code-of-conduct]: https://github.com/elixir-cloud-aai/elixir-cloud-aai/blob/dev/CODE_OF_CONDUCT.md
 [crypt4gh]: https://www.ga4gh.org/news_item/crypt4gh-a-secure-method-for-sharing-human-genetic-data/
-[decrypt]: https://github.com/elixir-cloud-aai/protes-middleware-crypt4gh/blob/main/README.md
+[decrypt]: https://github.com/elixir-cloud-aai/protes-middleware-crypt4gh/blob/main/crypt4gh_middleware/decrypt.py
 [elixir]: https://elixir-europe.org/
 [elixir-cloud-aai]: https://elixir-cloud.dcc.sib.swiss/
 [elixir-compute]: https://elixir-europe.org/platforms/compute
