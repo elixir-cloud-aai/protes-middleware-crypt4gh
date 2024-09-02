@@ -29,8 +29,10 @@ Subsequent executors then refer to the files in `/vol/crypt/`, not their origina
 ![workflow-overview][workflow]
 
 ## Important Considerations
-
-
+You __should not use this middleware in untrusted environments__, as it requires transmission of secret keys and stores
+the decrypted contents of Crypt4GH files on disk. This middleware is meant to be used with a [Trusted Execution 
+Environment (TEE)][TEE], which allows for the secure transmission and storage of data. Integration with TEEs is a work
+in progress.
 
 ## Installation
 
@@ -80,4 +82,5 @@ the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute].
 [request]: <images/request.png>
 [tes]: https://github.com/ga4gh/task-execution-schemas
 [tesk]: https://github.com/elixir-cloud-aai/TESK
+[TEE]: https://f1000research.com/posters/13-194
 [workflow]: <images/workflow.png>
