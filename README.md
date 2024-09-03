@@ -43,7 +43,7 @@ in progress.
 
 ## Testing
 ### Requirements
-Tests require a running TES instance and an S3 bucket containing the input files. An instance of [Funnel][funnel] 
+Tests require a running TES instance and an S3 bucket containing the input files. Instances of [Funnel][funnel] 
 and [MinIO][minio] were used in development. `TES_URL` in `tests/tasks/test_tasks.py` can be altered depending on the
 TES instance being used.
 
