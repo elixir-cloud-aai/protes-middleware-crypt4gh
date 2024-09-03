@@ -15,7 +15,7 @@ so that subsequent executors can work on the decrypted contents.
 ## Implementation Details
 
 ### Middleware
-The middleware alters the initial TES request such that a decryption executor and a new volume (`/vol/crypt/`)are added 
+The middleware alters the initial TES request such that a decryption executor and a new volume (`/vol/crypt/`) are added 
 to the request. Since the decryption executor places all input files in `/vol/crypt/` all input paths in subsequent
 executors are altered to `/vol/crypt/{filename}`.
 
