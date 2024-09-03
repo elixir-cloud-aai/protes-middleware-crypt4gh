@@ -65,9 +65,7 @@ copy of which is also available in [`LICENSE`][license].
 ## Contact
 The project is maintained by [ELIXIR Cloud & AAI][elixir-cloud-aai], a Driver
 Project of the [Global Alliance for Genomics and Health (GA4GH)][ga4gh], under
-the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute].
-
-- For filing bug reports, feature requests or other code-related issues, please
+the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute]. For filing bug reports, feature requests or other code-related issues, please
   make use of the project's [issue tracker](https://github.com/elixir-cloud-aai/protes-middleware-crypt4gh/issues).
 
 [![GA4GH logo](images/logo-ga4gh.png)](https://www.ga4gh.org/)
