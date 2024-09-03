@@ -24,7 +24,7 @@ executors are altered to `/vol/crypt/{filename}`.
 ### Decryption
 The functionality of the decryption executor lies in [`decrypt.py`][decrypt]. This script moves all input files to a
 specified output directory (in this case, `/vol/crypt/`). If a Crypt4GH file is detected and the secret key used to
-encrypt it is provided, the executor decrypts the contents of the Crypt4GH file and places it in `/vol/crypt`.
+encrypt it is provided, the executor decrypts the contents of the Crypt4GH file and places it in `/vol/crypt/`.
 Subsequent executors then refer to the files in `/vol/crypt/`, not their original locations.
 
 <img alt="workflow-diagram" src="images/workflow.png" height="400">
