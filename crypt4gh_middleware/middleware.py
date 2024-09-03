@@ -1,9 +1,10 @@
 """Crypt4GH middleware."""
 from pathlib import Path
+import uuid
 
 import flask
 
-VOLUME_PATH = "/vol/crypt/"
+VOLUME_PATH = f"/vol/{str(uuid.uuid4().hex)}"
 # mypy: disable-error-code="index"
 
 class PathNotAllowedException(ValueError):
