@@ -21,5 +21,8 @@ ruff = "*"
 pylint = "*"
 mypy = "*"
 
+[tool.poetry.group.middleware.dependencies]
+flask = "*"
+
 [tool.pylint."MESSAGES CONTROL"]
-disable = ["logging-fstring-interpolation", "missing-timeout"]
+disable = ["logging-fstring-interpolation", "missing-timeout", "too-few-public-methods"]
