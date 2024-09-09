@@ -7,6 +7,7 @@ from unittest import mock
 
 INPUT_DIR = Path(__file__).parents[1]/"inputs"
 INPUT_TEXT = "hello world from the input!"
+S3_BUCKET_ENDPOINT = "host.docker.internal:9000"
 
 
 @contextlib.contextmanager

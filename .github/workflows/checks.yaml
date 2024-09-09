@@ -25,3 +25,48 @@ jobs:
         run: poetry run ruff check tests/* crypt4gh_middleware/*
       - name: Type checking with mypy
         run: poetry run mypy crypt4gh_middleware
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    services:
+      funnel:
+        image: athitheyag/funnel:test
+        ports:
+          - 8000:8000
+      minio:
+        image: minio/minio:edge-cicd
+        ports:
+          - 9000:9000
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+    steps:
+      - name: Fetch mc client
+        run: curl -o ./mc -# https://dl.min.io/client/mc/release/linux-amd64/mc && chmod +x ./mc
+      - name: Create input and output buckets
+        run: | 
+          ./mc alias set minio http://localhost:9000 minioadmin minioadmin \
+          && ./mc mb minio/inputs \
+          && ./mc mb minio/outputs
+      - name: Set bucket permissions to public
+        run: |
+          ./mc anonymous set public minio/inputs \
+          && ./mc anonymous set public minio/outputs
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Upload input files
+        run: |
+            for file in inputs/*; do
+              curl http://localhost:9000/inputs/$(basename $file) --upload-file $file
+            done
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: poetry install
+      - name: Run tests
+        run: poetry run pytest tests/tasks
