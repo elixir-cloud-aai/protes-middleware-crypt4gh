@@ -10,6 +10,7 @@ version = "0.0.1"
 
 [tool.poetry.dependencies]
 python = "^3.8"
+packaging = ">=24.2"
 
 [tool.poetry.group.tests.dependencies]
 crypt4gh = "~1.7"
