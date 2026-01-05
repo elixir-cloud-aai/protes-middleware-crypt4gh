@@ -1,6 +1,5 @@
 # Dockerfile for athitheyag/c4gh:1.0
-FROM python:3.12
+FROM lvarin/crypt4gh:1.6
 
-WORKDIR /app
-COPY ./requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
+WORKDIR /home
+COPY crypt4gh_middleware/decrypt.py /home/decrypt.py

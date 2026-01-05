@@ -1,9 +1,12 @@
 """Crypt4GH middleware."""
-from pathlib import Path
 import uuid
+from copy import deepcopy
+from pathlib import Path
 
 import flask
 
+# Decrypted files must be written to a writable path inside the container.
+# e.g. Funnel runs containers with `--read-only` and mounts only specific dirs as RW
 VOLUME_PATH = f"/vol/{str(uuid.uuid4().hex)}"
 # mypy: disable-error-code="index"
 
@@ -13,11 +16,12 @@ class PathNotAllowedException(ValueError):
 class EmptyPayloadException(ValueError):
     """Raised when request has no JSON payload."""
 
-class CryptMiddleware:
+class CryptMiddleware():
     """Middleware class to handle Crypt4GH file inputs."""
 
     def __init__(self):
         self.original_input_paths = []
+        self.tes_urls = []
 
     def _add_decryption_executor(self, request: flask.Request) -> flask.Request:
         """Add the decryption executor to the executor list."""
@@ -73,9 +77,13 @@ class CryptMiddleware:
             PathNotAllowedError if any path starts with VOLUME_PATH.
         """
         for input_body in request.json["inputs"]:
-            if input_body["path"].startswith(VOLUME_PATH):
+            path = input_body.get("path")
+            if path is None:
+                continue
+            if path.startswith(VOLUME_PATH):
                 raise PathNotAllowedException(f"{VOLUME_PATH} is not allowed in input path.")
-            self.original_input_paths.append(input_body["path"])
+            if str(path).lower().endswith(".c4gh"):
+                self.original_input_paths.append(path)
 
     def apply_middleware(self, request: flask.Request) -> flask.Request:
         """Apply middleware to request."""
@@ -86,4 +94,9 @@ class CryptMiddleware:
         request = self._change_executor_paths(request)
         request = self._add_volume(request)
         request = self._add_decryption_executor(request)
+        tes_urls=deepcopy(
+                flask.current_app.config.foca.custom.tes.service_list  # type: ignore
+        )
+        self.tes_urls = list(set(tes_urls))
+        request.json["tes_urls"] = self.tes_urls
         return request

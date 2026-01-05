@@ -57,15 +57,26 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
     # Third element of tuple is the recipient pk, which isn't used in decryption
     key_tuples = [(encryption_method_codes['ChaCha20'], sk, None) for sk in private_keys]
     for file_path in file_paths:
-        with open(file_path, "rb") as f_in, NamedTemporaryFile() as f_out:
+        if not file_path.name.endswith('.c4gh'):
+            continue
+        with open(file_path, "rb") as f_in, NamedTemporaryFile(delete=False) as f_out:
             try:
                 decrypt(keys=key_tuples, infile=f_in, outfile=f_out)  # Checks for magic
-                shutil.move(f_out.name, file_path)
-                logger.info(f"Decrypted {file_path} successfully")
+                f_out.flush()
+                # Remove .c4gh extension from decrypted file
+                decrypted_path = file_path.parent / file_path.name.rsplit('.c4gh', 1)[0]
+                shutil.move(f_out.name, decrypted_path)
+                logger.info(f"Decrypted {file_path} successfully to {decrypted_path}")
             except ValueError as e:
+                if os.path.exists(f_out.name):
+                    os.unlink(f_out.name)
                 if str(e) != "Not a CRYPT4GH formatted file":
                     logger.critical(f"Private key for {file_path.name} not provided")
                 continue
+            except Exception:
+                if os.path.exists(f_out.name):
+                    os.unlink(f_out.name)
+                raise
 
 
 def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
@@ -86,8 +97,17 @@ def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
         output_paths = [output_dir/file_path.name for file_path in file_paths]
         existing_names.add(file_path.name)
     for src, dest in zip(file_paths, output_paths):
-        shutil.move(src, dest)
-        logger.debug(f"Moved {src} to {dest}")
+        # Use copy2 for read-only sources (e.g., from Funnel container /inputs/)
+        try:
+            shutil.move(src, dest)
+            logger.debug(f"Moved {src} to {dest}")
+        except OSError as e:
+            # Catch various errors from read-only mounts."
+            logger.debug(
+                f"Cannot move {src} (error: {e}), using copy instead"
+            )
+            shutil.copy2(src, dest)
+            logger.debug(f"Copied {src} to {dest}")
     return output_paths
 
 
@@ -137,7 +157,14 @@ def main():
     keys = get_private_keys(file_paths=new_paths)
     try:
         decrypt_files(file_paths=new_paths, private_keys=keys)
+        # Set proper permissions for output files to allow subsequent containers to read them
+        os.chmod(args.output_dir, 0o755)
+        for file_path in args.output_dir.iterdir():
+            if file_path.is_file():
+                os.chmod(file_path, 0o644)
+        logger.info("Crypt4GH decrypt completed successfully")
     except Exception as e:
+        logger.error(f"Crypt4GH decrypt failed: {str(e)}", exc_info=True)
         remove_files(directory=args.output_dir)
         raise e
 
