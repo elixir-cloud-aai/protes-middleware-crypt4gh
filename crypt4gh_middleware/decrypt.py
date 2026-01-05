@@ -68,9 +68,15 @@ def decrypt_files(file_paths: list[Path], private_keys: list[bytes]):
                 shutil.move(f_out.name, decrypted_path)
                 logger.info(f"Decrypted {file_path} successfully to {decrypted_path}")
             except ValueError as e:
+                if os.path.exists(f_out.name):
+                    os.unlink(f_out.name)
                 if str(e) != "Not a CRYPT4GH formatted file":
                     logger.critical(f"Private key for {file_path.name} not provided")
                 continue
+            except Exception:
+                if os.path.exists(f_out.name):
+                    os.unlink(f_out.name)
+                raise
 
 
 def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
@@ -106,7 +112,7 @@ def move_files(file_paths: list[Path], output_dir: Path) -> list[Path]:
 
 
 def remove_files(directory: Path):
-    """Rewrites and removes all files in a directory using rm -R.
+    """Rewrites and removes all files in a directory using rm -P.
 
     Args:
         directory: Directory that holds the files to be deleted.
@@ -117,7 +123,7 @@ def remove_files(directory: Path):
     if not directory.is_dir():
         raise ValueError(f"Could not remove files: {directory} is not a directory.")
     for file in directory.iterdir():
-        subprocess.run(["rm", "-R", str(file)], check=True)
+        subprocess.run(["rm", "-P", str(file)], check=True)
         logger.debug(f"Removed {file.name}")
 
 

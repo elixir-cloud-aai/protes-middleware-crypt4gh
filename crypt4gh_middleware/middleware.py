@@ -78,6 +78,8 @@ class CryptMiddleware():
         """
         for input_body in request.json["inputs"]:
             path = input_body.get("path")
+            if path is None:
+                continue
             if path.startswith(VOLUME_PATH):
                 raise PathNotAllowedException(f"{VOLUME_PATH} is not allowed in input path.")
             if str(path).lower().endswith(".c4gh"):
