@@ -4,7 +4,6 @@ from copy import deepcopy
 from pathlib import Path
 
 import flask
-from pro_tes.middleware.abstract_middleware import AbstractMiddleware
 
 # Decrypted files must be written to a writable path inside the container.
 # e.g. Funnel runs containers with `--read-only` and mounts only specific dirs as RW
@@ -17,11 +16,12 @@ class PathNotAllowedException(ValueError):
 class EmptyPayloadException(ValueError):
     """Raised when request has no JSON payload."""
 
-class CryptMiddleware(AbstractMiddleware):
+class CryptMiddleware():
     """Middleware class to handle Crypt4GH file inputs."""
 
     def __init__(self):
         self.original_input_paths = []
+        self.tes_urls = []
 
     def _add_decryption_executor(self, request: flask.Request) -> flask.Request:
         """Add the decryption executor to the executor list."""
