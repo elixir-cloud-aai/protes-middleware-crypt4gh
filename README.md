@@ -84,7 +84,7 @@ the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute]. For fil
 [elixir-compute]: https://elixir-europe.org/platforms/compute
 [funnel]: https://ohsu-comp-bio.github.io/funnel/
 [ga4gh]: https://ga4gh.org/
-[guidelines]: https://elixir-cloud-aai.github.io/guides/guide-contributor/
+[guidelines]: https://github.com/elixir-cloud-aai/.github/blob/main/CONTRIBUTING.md
 [license]: LICENSE
 [minio]: https://min.io/
 [request]: <images/request.png>
