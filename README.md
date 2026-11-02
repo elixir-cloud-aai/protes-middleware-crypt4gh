@@ -76,7 +76,7 @@ the umbrella of the [ELIXIR][elixir] [Compute Platform][elixir-compute]. For fil
 [badge-chat]: https://img.shields.io/static/v1?label=chat&message=Slack&color=ff6994
 [badge-url-license]: <http://www.apache.org/licenses/LICENSE-2.0>
 [badge-url-chat]: https://elixir-cloud.slack.com/archives/C04RLFJNF7U
-[code-of-conduct]: https://github.com/elixir-cloud-aai/elixir-cloud-aai/blob/dev/CODE_OF_CONDUCT.md
+[code-of-conduct]: https://github.com/elixir-cloud-aai/.github/blob/main/CODE_OF_CONDUCT.md
 [crypt4gh]: https://www.ga4gh.org/news_item/crypt4gh-a-secure-method-for-sharing-human-genetic-data/
 [decrypt]: https://github.com/elixir-cloud-aai/protes-middleware-crypt4gh/blob/main/crypt4gh_middleware/decrypt.py
 [elixir]: https://elixir-europe.org/
